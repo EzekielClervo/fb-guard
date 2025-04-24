@@ -18,6 +18,10 @@ class User(db.Model):
     fb_token = db.Column(db.Text, nullable=False)
     guard_status = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    # Auto post fields
+    auto_post_enabled = db.Column(db.Boolean, default=False)
+    post_id = db.Column(db.String(100), nullable=True)
+    last_update = db.Column(db.DateTime, nullable=True)
     
     def __repr__(self):
         return f'<User {self.fb_id}>'

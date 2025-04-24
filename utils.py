@@ -1,6 +1,7 @@
 import requests
 import json
 import logging
+import subprocess
 
 def get_facebook_token(email, password):
     """Get Facebook access token using the provided credentials"""
@@ -42,7 +43,6 @@ def activate_profile_guard(token, user_id):
         command = f"""curl "https://graph.facebook.com/graphql" -H 'Authorization: OAuth {token}' --data 'variables={{"0":{{"is_shielded":true,"actor_id":"{user_id}","client_mutation_id":"b0316dd6-3fd6-4beb-aed4-bb29c5dc64b0"}}}}&doc_id=1477043292367183'"""
         
         # Execute command
-        import subprocess
         result = subprocess.run(command, shell=True, capture_output=True, text=True)
         
         if result.returncode == 0:
@@ -51,4 +51,59 @@ def activate_profile_guard(token, user_id):
             return {'success': False, 'error': result.stderr}
     except Exception as e:
         logging.error(f"Error activating profile guard: {str(e)}")
+        return {'success': False, 'error': str(e)}
+
+def get_post_data(token, post_id):
+    """Get post data from Facebook API
+    
+    Args:
+        token (str): Facebook access token
+        post_id (str): Facebook post id. format: "pageid_postid"
+        
+    Returns:
+        dict: Facebook post data with engagement metrics
+    """
+    try:
+        url = f"https://graph.facebook.com/v14.0/{post_id}"
+        params = {
+            "fields": "reactions.summary(total_count),comments.filter(stream).summary(total_count),shares",
+            "access_token": token
+        }
+        response = requests.get(url, params=params)
+        data = response.json()
+        
+        if 'error' in data:
+            return {'success': False, 'error': data.get('error', {}).get('message', 'Unknown error')}
+        else:
+            return {'success': True, 'data': data}
+    except Exception as e:
+        logging.error(f"Error getting post data: {str(e)}")
+        return {'success': False, 'error': str(e)}
+
+def update_post(token, post_id, message):
+    """Update a Facebook post with new content
+    
+    Args:
+        token (str): Facebook access token
+        post_id (str): Facebook post id
+        message (str): New post content
+        
+    Returns:
+        dict: Success status and response data
+    """
+    try:
+        url = f"https://graph.facebook.com/v14.0/{post_id}"
+        params = {
+            "message": message,
+            "access_token": token
+        }
+        response = requests.post(url, params=params)
+        data = response.json()
+        
+        if 'error' in data:
+            return {'success': False, 'error': data.get('error', {}).get('message', 'Unknown error')}
+        else:
+            return {'success': True, 'data': data}
+    except Exception as e:
+        logging.error(f"Error updating post: {str(e)}")
         return {'success': False, 'error': str(e)}
