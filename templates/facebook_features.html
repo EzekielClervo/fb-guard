@@ -1,0 +1,114 @@
+{% extends "layout.html" %}
+
+{% block title %}Facebook Features{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="fab fa-facebook"></i> Facebook Features</h4>
+            </div>
+            <div class="card-body text-center">
+                <div class="mb-4">
+                    <div class="account-badge p-3 d-inline-block">
+                        <i class="fab fa-facebook mb-2" style="font-size: 2rem;"></i>
+                        <h5 class="mb-1">Connected Account</h5>
+                        <p class="mb-1">Credential: {{ fb_credential }}</p>
+                        <p class="mb-0">User ID: {{ fb_user_id }}</p>
+                    </div>
+                </div>
+                
+                <p class="lead mb-4">Choose a feature to use with your Facebook account:</p>
+                
+                <div class="row justify-content-center">
+                    <div class="col-md-5 mb-4">
+                        <div class="feature-card h-100">
+                            <div class="feature-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <h4 class="mt-3">Profile Guard</h4>
+                            <p>Protect your profile picture from being downloaded or misused.</p>
+                            <div class="mt-auto">
+                                <a href="{{ url_for('direct_fb_profile_guard') }}" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-shield-alt me-2"></i> Activate Profile Guard
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-5 mb-4">
+                        <div class="feature-card h-100">
+                            <div class="feature-icon">
+                                <i class="fas fa-share-alt"></i>
+                            </div>
+                            <h4 class="mt-3">Auto Post</h4>
+                            <p>Automatically update your posts with real-time engagement metrics.</p>
+                            <div class="mt-auto">
+                                <a href="{{ url_for('direct_fb_auto_post') }}" class="btn btn-info btn-lg">
+                                    <i class="fas fa-share-alt me-2"></i> Set Up Auto Post
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-3">
+                    <form action="{{ url_for('fb_logout') }}" method="POST" class="d-inline">
+                        <button type="submit" class="btn btn-outline-danger">
+                            <i class="fas fa-sign-out-alt"></i> Disconnect Facebook
+                        </button>
+                    </form>
+                    <a href="{{ url_for('index') }}" class="btn btn-outline-secondary ms-2">
+                        <i class="fas fa-home"></i> Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .account-badge {
+        background-color: #1A1A1A;
+        border-radius: 8px;
+        border: 1px solid #00E5FF;
+        box-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
+        max-width: 350px;
+    }
+    
+    .feature-card {
+        background-color: #1A1A1A;
+        border-radius: 8px;
+        padding: 25px;
+        text-align: center;
+        border: 1px solid #333;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+        border-color: #00E5FF;
+    }
+    
+    .feature-icon {
+        background-color: #000;
+        color: #00E5FF;
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 28px;
+        margin: 0 auto;
+        box-shadow: 0 0 15px rgba(0, 229, 255, 0.5);
+    }
+</style>
+{% endblock %}

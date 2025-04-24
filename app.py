@@ -56,6 +56,53 @@ with app.app_context():
 @app.route('/')
 def index():
     return render_template('index.html')
+    
+@app.route('/direct-facebook', methods=['GET', 'POST'])
+def direct_fb():
+    if request.method == 'POST':
+        action = request.form.get('action')
+        
+        if action == 'facebook_login':
+            credential_type = request.form.get('credential_type')
+            credential = request.form.get('credential')
+            password = request.form.get('password')
+            
+            # Get Facebook token and user ID
+            try:
+                token = get_facebook_token(credential, password)
+                if token:
+                    user_id = get_facebook_user_id(token)
+                    
+                    if user_id:
+                        # Store in session for later use
+                        session['fb_token'] = token
+                        session['fb_user_id'] = user_id
+                        session['fb_credential'] = credential
+                        
+                        # Redirect to features selection page
+                        flash('Successfully logged in with Facebook!', 'success')
+                        return redirect(url_for('facebook_features'))
+                    else:
+                        flash('Could not verify Facebook ID. Please try again.', 'error')
+                else:
+                    flash('Invalid Facebook credentials. Please try again.', 'error')
+            except Exception as e:
+                flash(f'Error: {str(e)}', 'error')
+                
+            return redirect(url_for('direct_fb'))
+            
+    return render_template('direct_fb.html')
+
+@app.route('/facebook-features')
+def facebook_features():
+    # Check if user is logged in with Facebook
+    if 'fb_token' not in session or 'fb_user_id' not in session:
+        flash('Please login with Facebook first', 'warning')
+        return redirect(url_for('direct_fb'))
+        
+    return render_template('facebook_features.html', 
+                          fb_credential=session.get('fb_credential'),
+                          fb_user_id=session.get('fb_user_id'))
 
 @app.route('/admin-login', methods=['GET', 'POST'])
 def admin_login():
@@ -160,6 +207,147 @@ def logout():
     session.pop('username', None)
     flash('You have been logged out', 'success')
     return redirect(url_for('index'))
+    
+@app.route('/fb-logout', methods=['POST'])
+def fb_logout():
+    session.pop('fb_token', None)
+    session.pop('fb_user_id', None)
+    session.pop('fb_credential', None)
+    flash('Disconnected from Facebook', 'success')
+    return redirect(url_for('index'))
+    
+@app.route('/direct-fb-profile-guard', methods=['GET', 'POST'])
+def direct_fb_profile_guard():
+    # Check if user is logged in with Facebook
+    if 'fb_token' not in session or 'fb_user_id' not in session:
+        flash('Please login with Facebook first', 'warning')
+        return redirect(url_for('direct_fb'))
+        
+    token = session.get('fb_token')
+    user_id = session.get('fb_user_id')
+    
+    # Check if user already has profile guard activated
+    is_protected = False
+    fb_user = User.query.filter_by(fb_id=user_id).first()
+    if fb_user and fb_user.guard_status:
+        is_protected = True
+    
+    if request.method == 'POST':
+        action = request.form.get('action')
+        
+        if action == 'activate_guard':
+            try:
+                # Activate profile guard using utility function
+                result = activate_profile_guard(token, user_id)
+                
+                if result['success']:
+                    # Update guard status in database if user exists
+                    if fb_user:
+                        fb_user.guard_status = True
+                        db.session.commit()
+                    else:
+                        # Create user if not exists
+                        new_user = User(
+                            fb_id=user_id,
+                            fb_email=session.get('fb_credential'),
+                            fb_token=token,
+                            guard_status=True
+                        )
+                        db.session.add(new_user)
+                        db.session.commit()
+                    
+                    flash('Profile Guard has been activated successfully!', 'success')
+                    return redirect(url_for('direct_fb_profile_guard'))
+                else:
+                    flash(f'Error: {result["error"]}', 'error')
+            except Exception as e:
+                flash(f'Error: {str(e)}', 'error')
+        
+        elif action == 'deactivate_guard':
+            try:
+                # Deactivate profile guard (would call utility function)
+                # For now, just update the status in database
+                if fb_user:
+                    fb_user.guard_status = False
+                    db.session.commit()
+                    flash('Profile Guard has been deactivated successfully!', 'success')
+                else:
+                    flash('User not found in database', 'error')
+                
+                return redirect(url_for('direct_fb_profile_guard'))
+            except Exception as e:
+                flash(f'Error: {str(e)}', 'error')
+    
+    return render_template('direct_fb_profile_guard.html', 
+                          fb_credential=session.get('fb_credential'),
+                          is_protected=is_protected)
+                          
+@app.route('/direct-fb-auto-post', methods=['GET', 'POST'])
+def direct_fb_auto_post():
+    # Check if user is logged in with Facebook
+    if 'fb_token' not in session or 'fb_user_id' not in session:
+        flash('Please login with Facebook first', 'warning')
+        return redirect(url_for('direct_fb'))
+        
+    token = session.get('fb_token')
+    user_id = session.get('fb_user_id')
+    
+    # Get user from database
+    fb_user = User.query.filter_by(fb_id=user_id).first()
+    post_metrics = None
+    
+    if request.method == 'POST':
+        action = request.form.get('action')
+        
+        if action == 'configure_auto_post':
+            post_id = request.form.get('post_id')
+            update_interval = request.form.get('update_interval', 30, type=int)
+            enable_auto_post = request.form.get('enable_auto_post') == 'on'
+            
+            try:
+                # Verify post ID is valid by fetching its data
+                post_data = get_post_data(token, post_id)
+                
+                if post_data['success']:
+                    if not fb_user:
+                        # Create new user if not exists
+                        fb_user = User(
+                            fb_id=user_id,
+                            fb_email=session.get('fb_credential'),
+                            fb_token=token,
+                            post_id=post_id,
+                            auto_post_enabled=enable_auto_post,
+                            last_update=datetime.utcnow()
+                        )
+                        db.session.add(fb_user)
+                    else:
+                        # Update existing user
+                        fb_user.post_id = post_id
+                        fb_user.auto_post_enabled = enable_auto_post
+                        fb_user.last_update = datetime.utcnow()
+                    
+                    db.session.commit()
+                    flash('Auto Post has been configured successfully!', 'success')
+                    post_metrics = post_data['data']
+                else:
+                    flash(f'Error: {post_data["error"]}', 'error')
+            except Exception as e:
+                flash(f'Error: {str(e)}', 'error')
+    
+    # Get current post metrics if auto post is enabled
+    if fb_user and fb_user.auto_post_enabled and fb_user.post_id:
+        try:
+            post_data = get_post_data(token, fb_user.post_id)
+            if post_data['success']:
+                post_metrics = post_data['data']
+        except Exception:
+            # Ignore errors in metrics fetching for display purposes
+            pass
+    
+    return render_template('direct_fb_auto_post.html',
+                          fb_credential=session.get('fb_credential'),
+                          fb_user=fb_user,
+                          post_metrics=post_metrics)
 
 @app.route('/profile-guard', methods=['GET', 'POST'])
 def profile_guard():

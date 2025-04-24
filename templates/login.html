@@ -10,40 +10,74 @@
                 <h4><i class="fas fa-sign-in-alt"></i> Login</h4>
             </div>
             <div class="card-body">
-                <form method="POST" action="{{ url_for('login') }}">
+                <form method="POST">
                     {{ form.hidden_tag() }}
                     <div class="mb-3">
                         <label for="username" class="form-label">Username</label>
                         {{ form.username(class="form-control", id="username", placeholder="Enter your username") }}
-                        {% if form.username.errors %}
-                            <div class="text-danger">
-                                {% for error in form.username.errors %}
-                                    <small>{{ error }}</small>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
+                        {% for error in form.username.errors %}
+                        <div class="text-danger">{{ error }}</div>
+                        {% endfor %}
                     </div>
                     <div class="mb-3">
                         <label for="password" class="form-label">Password</label>
-                        {{ form.password(class="form-control", id="password", placeholder="Enter your password") }}
-                        {% if form.password.errors %}
-                            <div class="text-danger">
-                                {% for error in form.password.errors %}
-                                    <small>{{ error }}</small>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
+                        <div class="input-group">
+                            {{ form.password(class="form-control", id="password", placeholder="Enter your password") }}
+                            <button class="btn btn-outline-secondary toggle-password" type="button" data-target="password">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        {% for error in form.password.errors %}
+                        <div class="text-danger">{{ error }}</div>
+                        {% endfor %}
                     </div>
                     <div class="d-grid gap-2">
                         {{ form.submit(class="btn btn-primary") }}
                     </div>
                 </form>
+                <div class="mt-3 text-center">
+                    <p>Don't have an account? <a href="{{ url_for('register') }}">Register here</a></p>
+                </div>
+                
                 <hr>
-                <div class="text-center">
-                    <p>Don't have an account? <a href="{{ url_for('register') }}">Register</a></p>
+                
+                <div class="fb-login-section text-center">
+                    <h5 class="mb-3">or use Facebook directly</h5>
+                    <a href="{{ url_for('direct_fb') }}" class="btn btn-outline-primary btn-lg">
+                        <i class="fab fa-facebook-f me-2"></i> Continue with Facebook
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Password visibility toggle
+        const togglePasswordBtn = document.querySelector('.toggle-password');
+        if (togglePasswordBtn) {
+            togglePasswordBtn.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                const passwordInput = document.getElementById(targetId);
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                
+                // Toggle the icon
+                this.querySelector('i').classList.toggle('fa-eye');
+                this.querySelector('i').classList.toggle('fa-eye-slash');
+            });
+        }
+    });
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .fb-login-section {
+        padding-top: 1rem;
+    }
+</style>
 {% endblock %}

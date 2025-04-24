@@ -1,0 +1,197 @@
+{% extends "layout.html" %}
+
+{% block title %}Auto Post{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4><i class="fas fa-share-alt"></i> Auto Post Configuration</h4>
+                {% if fb_user and fb_user.auto_post_enabled %}
+                <span class="badge bg-success">Active</span>
+                {% else %}
+                <span class="badge bg-secondary">Inactive</span>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <div class="mb-4">
+                        <div class="account-info p-3 d-inline-block">
+                            <i class="fab fa-facebook mb-2" style="font-size: 2rem;"></i>
+                            <h5 class="mb-1">Connected Account</h5>
+                            <p class="mb-0">{{ fb_credential }}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <form method="POST" class="mb-4">
+                    <input type="hidden" name="action" value="configure_auto_post">
+                    
+                    <div class="mb-3">
+                        <label for="post_id" class="form-label">Facebook Post ID</label>
+                        <input type="text" class="form-control" id="post_id" name="post_id" 
+                              value="{% if fb_user and fb_user.post_id %}{{ fb_user.post_id }}{% endif %}" required
+                              placeholder="Example: 123456789_987654321">
+                        <div class="form-text">Enter your Facebook post ID in the format: page_id_post_id</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="update_interval" class="form-label">Update Interval</label>
+                        <select class="form-control" id="update_interval" name="update_interval">
+                            <option value="5">Every 5 minutes</option>
+                            <option value="10">Every 10 minutes</option>
+                            <option value="30" selected>Every 30 minutes</option>
+                            <option value="60">Every hour</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-check mb-4">
+                        <input class="form-check-input" type="checkbox" id="enable_auto_post" name="enable_auto_post"
+                              {% if fb_user and fb_user.auto_post_enabled %}checked{% endif %}>
+                        <label class="form-check-label" for="enable_auto_post">
+                            Enable automatic post updates
+                        </label>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save me-2"></i> Save Configuration
+                        </button>
+                    </div>
+                </form>
+                
+                {% if post_metrics %}
+                <div class="metrics-section p-4 mt-4">
+                    <h5 class="mb-3 text-center"><i class="fas fa-chart-line me-2"></i> Current Post Metrics</h5>
+                    
+                    <div class="row text-center">
+                        <div class="col-3">
+                            <div class="metric-card">
+                                <div class="metric-icon">
+                                    <i class="fas fa-thumbs-up"></i>
+                                </div>
+                                <div class="metric-value">{{ post_metrics.likes|default(0) }}</div>
+                                <div class="metric-label">Likes</div>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="metric-card">
+                                <div class="metric-icon">
+                                    <i class="fas fa-heart"></i>
+                                </div>
+                                <div class="metric-value">{{ post_metrics.loves|default(0) }}</div>
+                                <div class="metric-label">Loves</div>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="metric-card">
+                                <div class="metric-icon">
+                                    <i class="fas fa-comment"></i>
+                                </div>
+                                <div class="metric-value">{{ post_metrics.comments|default(0) }}</div>
+                                <div class="metric-label">Comments</div>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="metric-card">
+                                <div class="metric-icon">
+                                    <i class="fas fa-share"></i>
+                                </div>
+                                <div class="metric-value">{{ post_metrics.shares|default(0) }}</div>
+                                <div class="metric-label">Shares</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center text-muted mt-3">
+                        <small>
+                            {% if fb_user and fb_user.last_update %}
+                            Last updated: {{ fb_user.last_update.strftime('%Y-%m-%d %H:%M:%S') }}
+                            {% else %}
+                            Last updated: Just now
+                            {% endif %}
+                        </small>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div class="info-section mt-4 p-3">
+                    <h5 class="mb-3"><i class="fas fa-info-circle me-2"></i> How This Works</h5>
+                    <p>Our Auto Post feature automatically updates your Facebook posts with current engagement metrics:</p>
+                    <ol>
+                        <li>We fetch your post's current likes, reactions, comments, and shares</li>
+                        <li>The post is updated at your chosen interval to display the latest metrics</li>
+                        <li>Your followers see real-time engagement stats in the post content</li>
+                        <li>Increased visibility as updated posts appear more frequently in feeds</li>
+                    </ol>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <a href="{{ url_for('facebook_features') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-arrow-left me-2"></i> Back to Features
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .account-info {
+        background-color: #1A1A1A;
+        border-radius: 8px;
+        border: 1px solid #00E5FF;
+        box-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
+        max-width: 350px;
+    }
+    
+    .metrics-section {
+        background-color: #1A1A1A;
+        border-radius: 8px;
+        border: 1px solid #00E5FF;
+    }
+    
+    .metric-card {
+        padding: 15px 5px;
+        transition: transform 0.3s ease;
+    }
+    
+    .metric-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .metric-icon {
+        font-size: 24px;
+        color: #00E5FF;
+        margin-bottom: 5px;
+    }
+    
+    .metric-value {
+        font-size: 22px;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    
+    .metric-label {
+        font-size: 14px;
+        color: #999;
+    }
+    
+    .info-section {
+        background-color: #1A1A1A;
+        border-radius: 8px;
+        border: 1px solid #333;
+    }
+    
+    .info-section ol {
+        padding-left: 1.2rem;
+    }
+    
+    .info-section li {
+        margin-bottom: 8px;
+    }
+</style>
+{% endblock %}
