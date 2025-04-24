@@ -4,215 +4,136 @@
 
 {% block content %}
 <div class="row">
-    <div class="col-lg-3">
+    <!-- User Information -->
+    <div class="col-md-4">
         <div class="card mb-4">
             <div class="card-header">
-                <h4><i class="fas fa-user"></i> Account</h4>
+                <h5><i class="fas fa-user"></i> Your Account</h5>
             </div>
-            <div class="list-group list-group-flush">
-                <a href="#facebook" class="list-group-item list-group-item-action active" id="facebook-tab">
-                    <i class="fab fa-facebook"></i> Facebook Accounts
-                </a>
-                <a href="#profile-guard" class="list-group-item list-group-item-action" id="profile-guard-tab">
-                    <i class="fas fa-shield-alt"></i> Profile Guard
-                </a>
-                <a href="#auto-post" class="list-group-item list-group-item-action" id="auto-post-tab">
-                    <i class="fas fa-sync-alt"></i> Auto Post
-                </a>
-                <a href="#settings" class="list-group-item list-group-item-action" id="settings-tab">
-                    <i class="fas fa-cog"></i> Settings
-                </a>
+            <div class="card-body">
+                <h4>Welcome, {{ current_user.username }}</h4>
+                <p><strong>Member since:</strong> {{ current_user.created_at.strftime('%B %d, %Y') }}</p>
+                <p><strong>Active Facebook Accounts:</strong> {{ fb_accounts|length }}</p>
+                
+                <!-- Settings Button -->
+                <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#settingsCollapse" aria-expanded="false" aria-controls="settingsCollapse">
+                    <i class="fas fa-cog"></i> Account Settings
+                </button>
+            </div>
+        </div>
+        
+        <!-- Settings Form -->
+        <div class="collapse mb-4" id="settingsCollapse">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Account Settings</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('update_settings') }}">
+                        {{ form.hidden_tag() }}
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="username" name="username" value="{{ current_user.username }}">
+                        </div>
+                        <hr>
+                        <h6>Change Password</h6>
+                        <div class="mb-3">
+                            <label for="current_password" class="form-label">Current Password</label>
+                            <input type="password" class="form-control" id="current_password" name="current_password">
+                        </div>
+                        <div class="mb-3">
+                            <label for="new_password" class="form-label">New Password</label>
+                            <input type="password" class="form-control" id="new_password" name="new_password">
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirm_password" class="form-label">Confirm New Password</label>
+                            <input type="password" class="form-control" id="confirm_password" name="confirm_password">
+                        </div>
+                        <button type="submit" class="btn btn-success">Save Changes</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
     
-    <div class="col-lg-9">
+    <!-- Facebook Accounts -->
+    <div class="col-md-8">
         <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h4 id="section-title"><i class="fab fa-facebook"></i> Facebook Accounts</h4>
-                <a href="{{ url_for('profile_guard') }}" class="btn btn-sm btn-primary">
-                    <i class="fas fa-plus"></i> Add Account
-                </a>
+            <div class="card-header">
+                <h5><i class="fab fa-facebook"></i> Your Facebook Accounts</h5>
             </div>
             <div class="card-body">
-                <!-- Facebook Accounts Section -->
-                <div class="admin-section" id="facebook-section">
-                    {% if fb_accounts %}
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Facebook ID</th>
-                                    <th>Email</th>
-                                    <th>Guard Status</th>
-                                    <th>Auto Post</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for account in fb_accounts %}
-                                <tr>
-                                    <td>{{ account.fb_id }}</td>
-                                    <td>{{ account.fb_email }}</td>
-                                    <td>
-                                        {% if account.guard_status %}
-                                        <span class="badge bg-success">Activated</span>
-                                        {% else %}
-                                        <span class="badge bg-secondary">Inactive</span>
+                {% if fb_accounts %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Facebook ID</th>
+                                <th>Email</th>
+                                <th>Guard Status</th>
+                                <th>Auto Post</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for account in fb_accounts %}
+                            <tr>
+                                <td>{{ account.fb_id }}</td>
+                                <td>{{ account.fb_email }}</td>
+                                <td>
+                                    {% if account.guard_status %}
+                                    <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                    <span class="badge bg-warning">Inactive</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if account.auto_post_enabled %}
+                                    <span class="badge bg-primary">Enabled</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Disabled</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        {% if not account.guard_status %}
+                                        <a href="{{ url_for('profile_guard') }}" class="btn btn-sm btn-outline-primary" title="Activate Profile Guard">
+                                            <i class="fas fa-shield-alt"></i>
+                                        </a>
                                         {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if account.auto_post_enabled %}
-                                        <span class="badge bg-success">Enabled</span>
-                                        {% else %}
-                                        <span class="badge bg-secondary">Disabled</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <div class="btn-group btn-group-sm">
-                                            <a href="{{ url_for('autopost', user_id=account.id) }}" class="btn btn-info">
-                                                <i class="fas fa-sync-alt"></i>
-                                            </a>
-                                            <a href="{{ url_for('profile_guard') }}" class="btn btn-primary">
-                                                <i class="fas fa-shield-alt"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    {% else %}
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle"></i> You haven't added any Facebook accounts yet.
-                        <a href="{{ url_for('profile_guard') }}" class="alert-link">Add a Facebook account</a> to get started.
-                    </div>
-                    {% endif %}
-                </div>
-                
-                <!-- Profile Guard Section -->
-                <div class="admin-section d-none" id="profile-guard-section">
-                    <div class="alert alert-info mb-4">
-                        <i class="fas fa-info-circle"></i> Profile Guard helps protect your Facebook profile picture from being downloaded or misused.
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="card mb-4">
-                                <div class="card-body text-center">
-                                    <i class="fas fa-shield-alt fa-4x mb-3 text-primary"></i>
-                                    <h5>Activate Profile Guard</h5>
-                                    <p>Protect your profile picture with enhanced security features.</p>
-                                    <a href="{{ url_for('profile_guard') }}" class="btn btn-primary">
-                                        Set Up Protection
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5>Protected Accounts</h5>
-                                    <ul class="list-group mt-3">
-                                        {% for account in fb_accounts %}
-                                            {% if account.guard_status %}
-                                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                {{ account.fb_email }}
-                                                <span class="badge bg-success rounded-pill">Active</span>
-                                            </li>
-                                            {% endif %}
-                                        {% endfor %}
                                         
-                                        {% if not any(account.guard_status for account in fb_accounts) %}
-                                        <li class="list-group-item text-center text-muted">
-                                            No accounts protected
-                                        </li>
+                                        {% if not account.auto_post_enabled %}
+                                        <a href="{{ url_for('autopost', step=2, account_id=account.id) }}" class="btn btn-sm btn-outline-info" title="Set Up Auto Post">
+                                            <i class="fas fa-share-alt"></i>
+                                        </a>
+                                        {% else %}
+                                        <a href="{{ url_for('autopost', step=2, account_id=account.id) }}" class="btn btn-sm btn-outline-warning" title="Edit Auto Post">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
                                         {% endif %}
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
-                
-                <!-- Auto Post Section -->
-                <div class="admin-section d-none" id="auto-post-section">
-                    <div class="alert alert-info mb-4">
-                        <i class="fas fa-info-circle"></i> Auto Post automatically updates your Facebook posts with the latest engagement statistics.
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="card mb-4">
-                                <div class="card-body text-center">
-                                    <i class="fas fa-sync-alt fa-4x mb-3 text-primary"></i>
-                                    <h5>Set Up Auto Post</h5>
-                                    <p>Configure automatic updates for your Facebook posts.</p>
-                                    <a href="{{ url_for('autopost') }}" class="btn btn-primary">
-                                        Configure Auto Post
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5>Active Auto Posts</h5>
-                                    <ul class="list-group mt-3">
-                                        {% for account in fb_accounts %}
-                                            {% if account.auto_post_enabled and account.post_id %}
-                                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                {{ account.fb_email }}
-                                                <div>
-                                                    <small class="d-block text-muted">Post ID: {{ account.post_id[:10] }}...</small>
-                                                    <span class="badge bg-success rounded-pill">Active</span>
-                                                </div>
-                                            </li>
-                                            {% endif %}
-                                        {% endfor %}
-                                        
-                                        {% if not any(account.auto_post_enabled for account in fb_accounts) %}
-                                        <li class="list-group-item text-center text-muted">
-                                            No active auto posts
-                                        </li>
-                                        {% endif %}
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <p>You don't have any Facebook accounts linked yet.</p>
+                    <a href="{{ url_for('profile_guard') }}" class="btn btn-primary mt-2">Add Facebook Account</a> or 
+                    <a href="{{ url_for('autopost') }}" class="btn btn-info mt-2">Set Up Auto Post</a>
                 </div>
-                
-                <!-- Settings Section -->
-                <div class="admin-section d-none" id="settings-section">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">Account Settings</h5>
-                            <form method="POST" action="{{ url_for('update_settings') }}">
-                                {{ form.hidden_tag() }}
-                                <div class="mb-3">
-                                    <label for="username" class="form-label">Username</label>
-                                    <input type="text" class="form-control" id="username" name="username" value="{{ current_user.username }}" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="current_password" class="form-label">Current Password</label>
-                                    <input type="password" class="form-control" id="current_password" name="current_password">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="new_password" class="form-label">New Password</label>
-                                    <input type="password" class="form-control" id="new_password" name="new_password">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="confirm_password" class="form-label">Confirm New Password</label>
-                                    <input type="password" class="form-control" id="confirm_password" name="confirm_password">
-                                </div>
-                                <button type="submit" class="btn btn-primary">Save Changes</button>
-                            </form>
-                        </div>
-                    </div>
+                {% endif %}
+            </div>
+            <div class="card-footer">
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('profile_guard') }}" class="btn btn-primary">
+                        <i class="fas fa-shield-alt"></i> Activate Profile Guard
+                    </a>
+                    <a href="{{ url_for('autopost') }}" class="btn btn-info">
+                        <i class="fas fa-share-alt"></i> Set Up Auto Post
+                    </a>
                 </div>
             </div>
         </div>
@@ -222,31 +143,9 @@
 
 {% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Handle tab switching
-    const tabs = document.querySelectorAll('.list-group-item');
-    const sections = document.querySelectorAll('.admin-section');
-    const sectionTitle = document.querySelector('#section-title');
-    
-    tabs.forEach(tab => {
-        tab.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            // Update active tab
-            tabs.forEach(t => t.classList.remove('active'));
-            this.classList.add('active');
-            
-            // Show appropriate section
-            const target = this.getAttribute('href').substring(1);
-            sections.forEach(section => {
-                section.classList.add('d-none');
-            });
-            document.getElementById(target + '-section').classList.remove('d-none');
-            
-            // Update section title
-            sectionTitle.innerHTML = this.innerHTML;
-        });
+    // Show toast messages for settings updates
+    document.addEventListener('DOMContentLoaded', function() {
+        // Your additional dashboard JS can go here
     });
-});
 </script>
 {% endblock %}

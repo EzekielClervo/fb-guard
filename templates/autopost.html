@@ -3,112 +3,124 @@
 {% block title %}Auto Post Setup{% endblock %}
 
 {% block content %}
-<div class="card">
-    <div class="card-header">
-        <h4><i class="fas fa-sync-alt"></i> Auto Post Setup</h4>
-    </div>
-    <div class="card-body">
-        <div class="step-progress mb-4">
-            <div class="step {% if step == 1 %}active{% endif %} {% if step > 1 %}completed{% endif %}">
-                <div class="step-circle {% if step == 1 %}active{% endif %} {% if step > 1 %}completed{% endif %}">1</div>
-                <div class="step-text">Connect</div>
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="fas fa-share-alt"></i> Auto Post Setup</h4>
             </div>
-            <div class="step-line"></div>
-            <div class="step {% if step == 2 %}active{% endif %} {% if step > 2 %}completed{% endif %}">
-                <div class="step-circle {% if step == 2 %}active{% endif %} {% if step > 2 %}completed{% endif %}">2</div>
-                <div class="step-text">Configure</div>
-            </div>
-            <div class="step-line"></div>
-            <div class="step {% if step == 3 %}active{% endif %}">
-                <div class="step-circle {% if step == 3 %}active{% endif %}">3</div>
-                <div class="step-text">Complete</div>
-            </div>
-        </div>
-
-        <div class="step-content {% if step == 1 %}active{% endif %}" id="step1">
-            <h5>Connect your Facebook account</h5>
-            <p>Enter your Facebook credentials to set up automatic post updates.</p>
-            <form method="POST" action="{{ url_for('autopost', step=1) }}">
-                {{ form.hidden_tag() }}
-                <div class="mb-3">
-                    <label for="email" class="form-label">Facebook Email</label>
-                    <input type="email" class="form-control" id="email" name="email" required>
-                </div>
-                <div class="mb-3">
-                    <label for="password" class="form-label">Facebook Password</label>
-                    <input type="password" class="form-control" id="password" name="password" required>
-                </div>
-                <div class="d-grid gap-2">
-                    <button type="submit" class="btn btn-primary">Connect Account</button>
-                </div>
-            </form>
-        </div>
-
-        <div class="step-content {% if step == 2 %}active{% endif %}" id="step2">
-            <h5>Configure Auto Post</h5>
-            <p>Now that your account is connected, enter the Post ID that you want to update automatically.</p>
-            <form method="POST" action="{{ url_for('autopost', step=2) }}">
-                {{ form.hidden_tag() }}
-                <div class="mb-3">
-                    <label for="post_id" class="form-label">Facebook Post ID</label>
-                    <input type="text" class="form-control" id="post_id" name="post_id" 
-                           placeholder="Example: 123456789_123456789" required>
-                    <div class="form-text text-muted">
-                        Your Post ID should be in the format "pageid_postid" or "userid_postid"
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="auto_update" name="auto_update" checked>
-                        <label class="form-check-label" for="auto_update">
-                            Enable automatic updates
-                        </label>
-                    </div>
-                </div>
-                <div class="d-grid gap-2">
-                    <button type="submit" class="btn btn-primary">Setup Auto Post</button>
-                </div>
-            </form>
-        </div>
-
-        <div class="step-content {% if step == 3 %}active{% endif %}" id="step3">
-            <div class="text-center">
-                <div class="mb-4 success-animation">
-                    <i class="fas fa-check-circle fa-5x text-success"></i>
-                </div>
-                <h4 class="mb-3">Auto Post Setup Complete!</h4>
-                <p>Your post will be automatically updated with the latest engagement metrics.</p>
-                <div class="card mt-4 mb-4">
-                    <div class="card-body">
-                        <h5>Post Details</h5>
-                        <div class="row mt-3">
-                            <div class="col-md-4 text-center">
-                                <div class="stat-icon">
-                                    <i class="fas fa-thumbs-up fa-2x"></i>
-                                </div>
-                                <div class="stat-value">{{ reactions }}</div>
-                                <div>Reactions</div>
-                            </div>
-                            <div class="col-md-4 text-center">
-                                <div class="stat-icon">
-                                    <i class="fas fa-comment fa-2x"></i>
-                                </div>
-                                <div class="stat-value">{{ comments }}</div>
-                                <div>Comments</div>
-                            </div>
-                            <div class="col-md-4 text-center">
-                                <div class="stat-icon">
-                                    <i class="fas fa-share fa-2x"></i>
-                                </div>
-                                <div class="stat-value">{{ shares }}</div>
-                                <div>Shares</div>
-                            </div>
+            <div class="card-body">
+                <!-- Step indicators -->
+                <div class="d-flex justify-content-center mb-4">
+                    <div class="step-indicators">
+                        <div class="step {% if step >= 1 %}active{% endif %}">
+                            <div class="step-number">1</div>
+                            <div class="step-title">Facebook Login</div>
+                        </div>
+                        <div class="step-line"></div>
+                        <div class="step {% if step >= 2 %}active{% endif %}">
+                            <div class="step-number">2</div>
+                            <div class="step-title">Configure Post</div>
+                        </div>
+                        <div class="step-line"></div>
+                        <div class="step {% if step >= 3 %}active{% endif %}">
+                            <div class="step-number">3</div>
+                            <div class="step-title">Verification</div>
                         </div>
                     </div>
                 </div>
-                <div class="d-grid gap-2 col-md-6 mx-auto">
-                    <a href="{{ url_for('user_dashboard') }}" class="btn btn-primary">Go to Dashboard</a>
+                
+                <!-- Step 1: Facebook Login -->
+                {% if step == 1 %}
+                <div id="step1" class="step-content">
+                    <h5 class="text-center mb-4">Enter your Facebook credentials</h5>
+                    <form method="POST" action="{{ url_for('autopost', step=1) }}">
+                        {{ form.hidden_tag() }}
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Facebook Email</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Facebook Password</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                            <div class="form-text">Your credentials are securely stored and used only for post automation.</div>
+                        </div>
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary">Continue to Step 2</button>
+                        </div>
+                    </form>
                 </div>
+                
+                <!-- Step 2: Configure Post -->
+                {% elif step == 2 %}
+                <div id="step2" class="step-content">
+                    <h5 class="text-center mb-4">Set up your auto post</h5>
+                    <form method="POST" action="{{ url_for('autopost', step=2, account_id=request.args.get('account_id')) }}">
+                        {{ form.hidden_tag() }}
+                        <div class="mb-3">
+                            <label for="post_id" class="form-label">Facebook Post ID</label>
+                            <input type="text" class="form-control" id="post_id" name="post_id" required 
+                                   placeholder="e.g., 123456789_987654321">
+                            <div class="form-text">
+                                <i class="fas fa-info-circle"></i> The post ID is in the format "user_id_post_id" and can be 
+                                found in the URL when viewing a post individually.
+                            </div>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="auto_update" name="auto_update" checked>
+                            <label class="form-check-label" for="auto_update">
+                                Enable automatic updates (recommended)
+                            </label>
+                            <div class="form-text">
+                                Your post will be updated with new metrics automatically every few minutes.
+                            </div>
+                        </div>
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary">Continue to Step 3</button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Step 3: Verification -->
+                {% elif step == 3 %}
+                <div id="step3" class="step-content text-center">
+                    <div class="verification-success mb-4">
+                        <i class="fas fa-check-circle success-icon"></i>
+                        <h5 class="mt-3">Auto Post Successfully Configured!</h5>
+                    </div>
+                    
+                    <div class="metrics-card p-4 mb-4">
+                        <h6>Your post has been updated with:</h6>
+                        <div class="metrics-display">
+                            <div class="metric">
+                                <i class="fas fa-thumbs-up"></i>
+                                <span>{{ reactions }}</span>
+                                <label>Reactions</label>
+                            </div>
+                            <div class="metric">
+                                <i class="fas fa-comment"></i>
+                                <span>{{ comments }}</span>
+                                <label>Comments</label>
+                            </div>
+                            <div class="metric">
+                                <i class="fas fa-share"></i>
+                                <span>{{ shares }}</span>
+                                <label>Shares</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <p class="info-text">
+                        <i class="fas fa-info-circle"></i> Your post will automatically update with new metrics as people interact with it.
+                    </p>
+                    
+                    <div class="d-grid gap-2 mt-4">
+                        <a href="{{ url_for('user_dashboard') }}" class="btn btn-success">
+                            <i class="fas fa-check"></i> Return to Dashboard
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -117,8 +129,112 @@
 
 {% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Nothing extra needed yet
-});
+    // Additional JavaScript for the auto post page
+    document.addEventListener('DOMContentLoaded', function() {
+        // Any additional JS functionality can go here
+    });
 </script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Step indicators styling */
+    .step-indicators {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 80%;
+    }
+    
+    .step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        color: #aaa;
+    }
+    
+    .step.active {
+        color: #00E5FF;
+    }
+    
+    .step-number {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background-color: #333;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 5px;
+        border: 2px solid #555;
+    }
+    
+    .step.active .step-number {
+        background-color: #00E5FF;
+        border-color: #00E5FF;
+        color: #000;
+        text-shadow: none;
+        box-shadow: 0 0 10px rgba(0, 229, 255, 0.7);
+    }
+    
+    .step-line {
+        height: A2px;
+        background-color: #555;
+        flex-grow: 1;
+        margin: 0 10px;
+        margin-bottom: 20px;
+    }
+    
+    /* Success verification styling */
+    .verification-success {
+        margin: 20px 0;
+    }
+    
+    .success-icon {
+        font-size: 60px;
+        color: #00E5FF;
+        text-shadow: 0 0 15px rgba(0, 229, 255, 0.8);
+    }
+    
+    .metrics-card {
+        background-color: rgba(0, 229, 255, 0.1);
+        border-radius: 10px;
+        border: 1px solid rgba(0, 229, 255, 0.3);
+    }
+    
+    .metrics-display {
+        display: flex;
+        justify-content: space-around;
+        margin-top: 20px;
+    }
+    
+    .metric {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 10px;
+    }
+    
+    .metric i {
+        font-size: 24px;
+        margin-bottom: 5px;
+        color: #00E5FF;
+    }
+    
+    .metric span {
+        font-size: 24px;
+        font-weight: bold;
+    }
+    
+    .metric label {
+        font-size: 14px;
+        margin-top: 5px;
+        color: #ccc;
+    }
+    
+    .info-text {
+        color: #999;
+        font-style: italic;
+    }
+</style>
 {% endblock %}
