@@ -1,0 +1,147 @@
+{% extends "layout.html" %}
+
+{% block title %}Profile Guard{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="text-center"><i class="fas fa-shield-alt"></i> Facebook Profile Guard Activation</h2>
+            </div>
+            <div class="card-body">
+                <!-- Step Progress -->
+                <div class="step-progress mb-4">
+                    <div class="step" id="step1">
+                        <div class="step-circle active">1</div>
+                        <div class="step-text">Login</div>
+                    </div>
+                    <div class="step-line"></div>
+                    <div class="step" id="step2">
+                        <div class="step-circle">2</div>
+                        <div class="step-text">Get Token & ID</div>
+                    </div>
+                    <div class="step-line"></div>
+                    <div class="step" id="step3">
+                        <div class="step-circle">3</div>
+                        <div class="step-text">Activate Guard</div>
+                    </div>
+                </div>
+                
+                <!-- Step 1: Login Form -->
+                <div id="loginStep" class="step-content active">
+                    <form id="loginForm">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> Your credentials are securely processed to activate the Profile Guard feature.
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Facebook Email or Phone</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                <input type="text" class="form-control" id="email" name="email" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Facebook Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg" id="getTokenBtn">
+                                <i class="fas fa-key"></i> Get Access Token
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Step 2: Token & ID Display -->
+                <div id="tokenStep" class="step-content">
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i> Access token successfully generated!
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="accessToken" class="form-label">Access Token</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="accessToken" readonly>
+                            <button class="btn btn-outline-secondary" type="button" id="copyToken">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="userId" class="form-label">Facebook User ID</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="userId" readonly>
+                            <button class="btn btn-outline-secondary" type="button" id="copyId">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button id="activateGuardBtn" class="btn btn-primary btn-lg">
+                            <i class="fas fa-shield-alt"></i> Activate Profile Guard
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Step 3: Completion -->
+                <div id="completionStep" class="step-content">
+                    <div class="text-center">
+                        <div class="success-animation">
+                            <i class="fas fa-shield-alt fa-5x"></i>
+                            <div class="checkmark">
+                                <i class="fas fa-check-circle fa-3x"></i>
+                            </div>
+                        </div>
+                        <h3 class="mt-4">Profile Guard Successfully Activated!</h3>
+                        <p class="lead">Your Facebook profile picture is now protected.</p>
+                        <div class="mt-4">
+                            <a href="{{ url_for('profile_guard') }}" class="btn btn-outline-primary me-2">
+                                <i class="fas fa-redo"></i> Activate Another Account
+                            </a>
+                            <a href="{{ url_for('index') }}" class="btn btn-primary">
+                                <i class="fas fa-home"></i> Return to Home
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Loading Animation -->
+                <div id="loadingOverlay" class="loading-overlay">
+                    <div class="spinner-border text-light" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p id="loadingText">Processing...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('togglePassword').addEventListener('click', function() {
+        const passwordInput = document.getElementById('password');
+        const icon = this.querySelector('i');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    });
+    
+    // Step handling and form submission will be in script.js
+</script>
+{% endblock %}

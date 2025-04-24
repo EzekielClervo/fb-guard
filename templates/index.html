@@ -1,0 +1,91 @@
+{% extends "layout.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="row align-items-center">
+        <div class="col-lg-6">
+            <div class="hero-content">
+                <h1>Protect Your Facebook Profile Picture</h1>
+                <p class="lead">
+                    Enable Facebook's Profile Guard feature to prevent unauthorized copying and misuse of your profile picture.
+                </p>
+                <div class="cta-buttons">
+                    <a href="{{ url_for('profile_guard') }}" class="btn btn-primary btn-lg">Activate Profile Guard Now</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="hero-graphics text-center">
+                <div class="shield-graphic">
+                    <i class="fas fa-shield-alt fa-10x pulse-animation"></i>
+                    <div class="profile-circle">
+                        <i class="fas fa-user fa-5x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="features-section">
+    <h2 class="section-title text-center">Why Choose Our Service?</h2>
+    <div class="row mt-5">
+        <div class="col-md-4">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <h3>Enhanced Security</h3>
+                <p>Prevent others from downloading, sharing, or misusing your profile picture.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <h3>Quick Activation</h3>
+                <p>Simple and fast process to enable Profile Guard protection in just a few clicks.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <h3>Privacy Control</h3>
+                <p>Take control of your online presence and protect your digital identity.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="how-it-works">
+    <h2 class="section-title text-center">How It Works</h2>
+    <div class="timeline">
+        <div class="timeline-item">
+            <div class="timeline-number">1</div>
+            <div class="timeline-content">
+                <h4>Enter Your Credentials</h4>
+                <p>Provide your Facebook login information securely.</p>
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-number">2</div>
+            <div class="timeline-content">
+                <h4>Generate Access Token</h4>
+                <p>We'll generate a secure access token to activate the feature.</p>
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-number">3</div>
+            <div class="timeline-content">
+                <h4>Activate Profile Guard</h4>
+                <p>With one click, your profile picture is protected from misuse.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
