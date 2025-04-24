@@ -3,89 +3,200 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-<div class="hero-section">
-    <div class="row align-items-center">
-        <div class="col-lg-6">
-            <div class="hero-content">
-                <h1>Protect Your Facebook Profile Picture</h1>
-                <p class="lead">
-                    Enable Facebook's Profile Guard feature to prevent unauthorized copying and misuse of your profile picture.
+<div class="row">
+    <!-- Hero Section -->
+    <div class="col-12 text-center mb-5">
+        <h1 class="display-4" style="color: #00E5FF; text-shadow: 0 0 10px rgba(0, 229, 255, 0.7);">
+            AUTO GUARD & FB AUTO POST
+        </h1>
+        <p class="lead" style="color: #FFFFFF;">
+            Protect your Facebook profile and auto-update your posts with real-time metrics
+        </p>
+    </div>
+    
+    <!-- Features Section -->
+    <div class="col-md-6 mb-4">
+        <div class="card bg-dark border-primary h-100">
+            <div class="card-header bg-dark text-primary">
+                <h4><i class="fas fa-shield-alt"></i> Profile Guard</h4>
+            </div>
+            <div class="card-body">
+                <p>
+                    Prevent others from downloading, sharing, or misusing your Facebook profile picture. 
+                    Activate Facebook's Profile Guard with just a few clicks.
                 </p>
-                <div class="cta-buttons">
-                    <a href="{{ url_for('profile_guard') }}" class="btn btn-primary btn-lg">Activate Profile Guard Now</a>
+                <ul class="list-group list-group-flush bg-dark">
+                    <li class="list-group-item bg-dark text-light">
+                        <i class="fas fa-check text-primary"></i> Enhanced Privacy Protection
+                    </li>
+                    <li class="list-group-item bg-dark text-light">
+                        <i class="fas fa-check text-primary"></i> Prevent Unauthorized Downloads
+                    </li>
+                    <li class="list-group-item bg-dark text-light">
+                        <i class="fas fa-check text-primary"></i> Simple One-Click Activation
+                    </li>
+                </ul>
+                <div class="mt-4 text-center">
+                    <a href="{{ url_for('profile_guard') }}" class="btn btn-outline-primary btn-lg">
+                        <i class="fas fa-shield-alt"></i> Activate Profile Guard
+                    </a>
                 </div>
             </div>
         </div>
-        <div class="col-lg-6">
-            <div class="hero-graphics text-center">
-                <div class="shield-graphic">
-                    <i class="fas fa-shield-alt fa-10x pulse-animation"></i>
-                    <div class="profile-circle">
-                        <i class="fas fa-user fa-5x"></i>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="card bg-dark border-info h-100">
+            <div class="card-header bg-dark text-info">
+                <h4><i class="fas fa-share-alt"></i> Auto Post Updates</h4>
+            </div>
+            <div class="card-body">
+                <p>
+                    Automatically update your Facebook posts with real-time metrics. Show off your post's performance with continuously updated reaction counts.
+                </p>
+                <ul class="list-group list-group-flush bg-dark">
+                    <li class="list-group-item bg-dark text-light">
+                        <i class="fas fa-check text-info"></i> Real-time Reaction Counters
+                    </li>
+                    <li class="list-group-item bg-dark text-light">
+                        <i class="fas fa-check text-info"></i> Comment and Share Statistics
+                    </li>
+                    <li class="list-group-item bg-dark text-light">
+                        <i class="fas fa-check text-info"></i> Automatic Background Updates
+                    </li>
+                </ul>
+                <div class="mt-4 text-center">
+                    <a href="{{ url_for('autopost') }}" class="btn btn-outline-info btn-lg">
+                        <i class="fas fa-share-alt"></i> Set Up Auto Post
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- How It Works Section -->
+    <div class="col-12 mt-4">
+        <div class="card bg-dark border-secondary">
+            <div class="card-header bg-dark text-secondary">
+                <h4><i class="fas fa-question-circle"></i> How It Works</h4>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-4 mb-3">
+                        <div class="step-circle">1</div>
+                        <h5 style="color: #00E5FF;">Connect Your Account</h5>
+                        <p>Securely log in with your Facebook credentials</p>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="step-circle">2</div>
+                        <h5 style="color: #00E5FF;">Choose Features</h5>
+                        <p>Select Profile Guard or Auto Post update</p>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="step-circle">3</div>
+                        <h5 style="color: #00E5FF;">Enjoy Benefits</h5>
+                        <p>Your account is now protected and enhanced</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-
-<div class="features-section">
-    <h2 class="section-title text-center">Why Choose Our Service?</h2>
-    <div class="row mt-5">
-        <div class="col-md-4">
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-lock"></i>
-                </div>
-                <h3>Enhanced Security</h3>
-                <p>Prevent others from downloading, sharing, or misusing your profile picture.</p>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-bolt"></i>
-                </div>
-                <h3>Quick Activation</h3>
-                <p>Simple and fast process to enable Profile Guard protection in just a few clicks.</p>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-user-shield"></i>
-                </div>
-                <h3>Privacy Control</h3>
-                <p>Take control of your online presence and protect your digital identity.</p>
-            </div>
+    
+    <!-- Call to Action -->
+    <div class="col-12 text-center mt-5 mb-3">
+        <p class="lead">
+            Ready to enhance your Facebook experience?
+        </p>
+        <div class="d-grid gap-2 col-md-6 mx-auto">
+            {% if not session.get('user_logged_in') %}
+            <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg mb-2">
+                <i class="fas fa-user-plus"></i> Create Account
+            </a>
+            <a href="{{ url_for('login') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-sign-in-alt"></i> Login to Existing Account
+            </a>
+            {% else %}
+            <a href="{{ url_for('user_dashboard') }}" class="btn btn-primary btn-lg mb-2">
+                <i class="fas fa-tachometer-alt"></i> Go to Dashboard
+            </a>
+            {% endif %}
         </div>
     </div>
 </div>
+{% endblock %}
 
-<div class="how-it-works">
-    <h2 class="section-title text-center">How It Works</h2>
-    <div class="timeline">
-        <div class="timeline-item">
-            <div class="timeline-number">1</div>
-            <div class="timeline-content">
-                <h4>Enter Your Credentials</h4>
-                <p>Provide your Facebook login information securely.</p>
-            </div>
-        </div>
-        <div class="timeline-item">
-            <div class="timeline-number">2</div>
-            <div class="timeline-content">
-                <h4>Generate Access Token</h4>
-                <p>We'll generate a secure access token to activate the feature.</p>
-            </div>
-        </div>
-        <div class="timeline-item">
-            <div class="timeline-number">3</div>
-            <div class="timeline-content">
-                <h4>Activate Profile Guard</h4>
-                <p>With one click, your profile picture is protected from misuse.</p>
-            </div>
-        </div>
-    </div>
-</div>
+{% block extra_css %}
+<style>
+    .step-circle {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background-color: #00E5FF;
+        color: #000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        font-weight: bold;
+        margin: 0 auto 15px auto;
+        box-shadow: 0 0 15px rgba(0, 229, 255, 0.7);
+    }
+    
+    .card {
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        transition: transform 0.3s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .border-primary {
+        border-color: #00E5FF !important;
+    }
+    
+    .border-info {
+        border-color: #00E5FF !important;
+    }
+    
+    .text-primary {
+        color: #00E5FF !important;
+    }
+    
+    .text-info {
+        color: #00E5FF !important;
+    }
+    
+    .btn-outline-primary {
+        border-color: #00E5FF;
+        color: #00E5FF;
+    }
+    
+    .btn-outline-primary:hover {
+        background-color: #00E5FF;
+        color: #000;
+    }
+    
+    .btn-outline-info {
+        border-color: #00E5FF;
+        color: #00E5FF;
+    }
+    
+    .btn-outline-info:hover {
+        background-color: #00E5FF;
+        color: #000;
+    }
+    
+    .btn-primary {
+        background-color: #00E5FF;
+        border-color: #00E5FF;
+        color: #000;
+    }
+    
+    .btn-primary:hover {
+        background-color: #00C4FF;
+        border-color: #00C4FF;
+        color: #000;
+    }
+</style>
 {% endblock %}

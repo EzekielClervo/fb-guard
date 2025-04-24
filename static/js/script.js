@@ -1,200 +1,91 @@
+/**
+ * Custom script for FB Share Engine
+ */
+
 document.addEventListener('DOMContentLoaded', function() {
-    // Profile Guard Functionality
-    const loginForm = document.getElementById('loginForm');
-    const loginStep = document.getElementById('loginStep');
-    const tokenStep = document.getElementById('tokenStep');
-    const completionStep = document.getElementById('completionStep');
-    const loadingOverlay = document.getElementById('loadingOverlay');
-    
-    // Step indicators
-    const step1 = document.getElementById('step1');
-    const step2 = document.getElementById('step2');
-    const step3 = document.getElementById('step3');
-    
-    // Token and ID fields
-    const accessTokenField = document.getElementById('accessToken');
-    const userIdField = document.getElementById('userId');
-    
-    // Buttons
-    const activateGuardBtn = document.getElementById('activateGuardBtn');
-    const copyTokenBtn = document.getElementById('copyToken');
-    const copyIdBtn = document.getElementById('copyId');
-    
-    // If elements don't exist, return early (we're not on the profile guard page)
-    if (!loginForm) return;
-    
-    // Form Submission - Get Token
-    loginForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        
-        if (!email || !password) {
-            showToast('Please enter your Facebook email and password', 'error');
-            return;
-        }
-        
-        // Show loading
-        loadingOverlay.style.display = 'flex';
-        document.getElementById('loadingText').textContent = 'Getting access token...';
-        
-        // Send request to backend
-        const formData = new FormData();
-        formData.append('action', 'get_token');
-        formData.append('email', email);
-        formData.append('password', password);
-        
-        fetch('/profile-guard', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            loadingOverlay.style.display = 'none';
-            
-            if (data.success) {
-                // Show token and ID
-                accessTokenField.value = data.token;
-                userIdField.value = data.user_id;
-                
-                // Update step progress
-                step1.querySelector('.step-circle').classList.remove('active');
-                step1.querySelector('.step-circle').classList.add('completed');
-                step1.querySelector('.step-circle').innerHTML = '<i class="fas fa-check"></i>';
-                
-                step2.querySelector('.step-circle').classList.add('active');
-                
-                // Show token step
-                loginStep.classList.remove('active');
-                tokenStep.classList.add('active');
-                
-                showToast('Access token generated successfully!', 'success');
-            } else {
-                showToast(data.error || 'Failed to get access token', 'error');
+    // Auto dismiss alerts after 5 seconds
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+        setTimeout(() => {
+            const closeBtn = alert.querySelector('.btn-close');
+            if (closeBtn) {
+                closeBtn.click();
             }
-        })
-        .catch(error => {
-            loadingOverlay.style.display = 'none';
-            showToast('An error occurred: ' + error.message, 'error');
-        });
+        }, 5000);
     });
-    
-    // Activate Profile Guard
-    if (activateGuardBtn) {
-        activateGuardBtn.addEventListener('click', function() {
-            const token = accessTokenField.value;
-            const userId = userIdField.value;
-            
-            if (!token || !userId) {
-                showToast('Token or User ID is missing', 'error');
-                return;
-            }
-            
-            // Show loading
-            loadingOverlay.style.display = 'flex';
-            document.getElementById('loadingText').textContent = 'Activating Profile Guard...';
-            
-            // Send request to backend
-            const formData = new FormData();
-            formData.append('action', 'activate_guard');
-            formData.append('token', token);
-            formData.append('user_id', userId);
-            
-            fetch('/profile-guard', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                loadingOverlay.style.display = 'none';
-                
-                if (data.success) {
-                    // Update step progress
-                    step2.querySelector('.step-circle').classList.remove('active');
-                    step2.querySelector('.step-circle').classList.add('completed');
-                    step2.querySelector('.step-circle').innerHTML = '<i class="fas fa-check"></i>';
-                    
-                    step3.querySelector('.step-circle').classList.add('active');
-                    
-                    // Show completion step
-                    tokenStep.classList.remove('active');
-                    completionStep.classList.add('active');
-                    
-                    showToast('Profile Guard has been activated!', 'success');
-                } else {
-                    showToast(data.error || 'Failed to activate Profile Guard', 'error');
-                }
-            })
-            .catch(error => {
-                loadingOverlay.style.display = 'none';
-                showToast('An error occurred: ' + error.message, 'error');
-            });
-        });
-    }
-    
-    // Copy buttons functionality
-    if (copyTokenBtn) {
-        copyTokenBtn.addEventListener('click', function() {
-            copyToClipboard(accessTokenField);
-            showToast('Access token copied to clipboard', 'info');
-        });
-    }
-    
-    if (copyIdBtn) {
-        copyIdBtn.addEventListener('click', function() {
-            copyToClipboard(userIdField);
-            showToast('User ID copied to clipboard', 'info');
-        });
-    }
-});
 
-// Helper Functions
-function copyToClipboard(element) {
-    element.select();
-    document.execCommand('copy');
-}
-
-function showToast(message, type = 'info') {
-    // Create toast container if it doesn't exist
-    let toastContainer = document.querySelector('.toast-container');
-    if (!toastContainer) {
-        toastContainer = document.createElement('div');
-        toastContainer.className = 'toast-container position-fixed bottom-0 end-0 p-3';
-        document.body.appendChild(toastContainer);
+    // Copy to clipboard function
+    window.copyToClipboard = function(element) {
+        const text = document.getElementById(element).textContent;
+        navigator.clipboard.writeText(text).then(() => {
+            showToast('Copied to clipboard!', 'success');
+        }).catch(err => {
+            showToast('Failed to copy text.', 'error');
+        });
     }
-    
-    // Set the appropriate color based on type
-    let bgColor = 'bg-info';
-    if (type === 'success') bgColor = 'bg-success';
-    if (type === 'error') bgColor = 'bg-danger';
-    if (type === 'warning') bgColor = 'bg-warning';
-    
-    // Create the toast
-    const toastId = 'toast-' + Date.now();
-    const toastHtml = `
-    <div id="${toastId}" class="toast align-items-center text-white ${bgColor} border-0" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="d-flex">
-            <div class="toast-body">
+
+    // Show toast message
+    window.showToast = function(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.classList.add('toast', 'show', `bg-${type === 'error' ? 'danger' : type}`);
+        toast.setAttribute('role', 'alert');
+        toast.setAttribute('aria-live', 'assertive');
+        toast.setAttribute('aria-atomic', 'true');
+        
+        toast.innerHTML = `
+            <div class="toast-header">
+                <strong class="me-auto">${type.charAt(0).toUpperCase() + type.slice(1)}</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body text-white">
                 ${message}
             </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-    </div>
-    `;
-    
-    toastContainer.insertAdjacentHTML('beforeend', toastHtml);
-    
-    // Initialize and show the toast
-    const toastElement = document.getElementById(toastId);
-    const toast = new bootstrap.Toast(toastElement, {
-        autohide: true,
-        delay: 3000
+        `;
+        
+        const toastContainer = document.createElement('div');
+        toastContainer.style.position = 'fixed';
+        toastContainer.style.top = '20px';
+        toastContainer.style.right = '20px';
+        toastContainer.style.zIndex = '9999';
+        
+        toastContainer.appendChild(toast);
+        document.body.appendChild(toastContainer);
+        
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => {
+                document.body.removeChild(toastContainer);
+            }, 500);
+        }, 5000);
+    }
+
+    // Initialize tooltips
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+
+    // Password visibility toggle
+    const togglePasswordBtns = document.querySelectorAll('.toggle-password');
+    togglePasswordBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const passwordInput = document.getElementById(this.getAttribute('data-target'));
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            
+            // Toggle the icon
+            this.querySelector('i').classList.toggle('fa-eye');
+            this.querySelector('i').classList.toggle('fa-eye-slash');
+        });
     });
-    toast.show();
-    
-    // Remove the toast element after it's hidden
-    toastElement.addEventListener('hidden.bs.toast', function() {
-        toastElement.remove();
+
+    // Form validation
+    const forms = document.querySelectorAll('.needs-validation');
+    forms.forEach(form => {
+        form.addEventListener('submit', function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
     });
-}
+});
