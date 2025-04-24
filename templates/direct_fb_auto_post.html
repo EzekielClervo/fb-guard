@@ -51,6 +51,15 @@
                               placeholder="Example: 123456789_987654321">
                         <div class="form-text">Enter your Facebook post ID in the format: page_id_postid</div>
                     </div>
+
+                    <div class="mb-3">
+                        <label for="privacy" class="form-label">Post Privacy</label>
+                        <select class="form-control" id="privacy" name="privacy">
+                            <option value="EVERYONE" selected>Public (Everyone)</option>
+                            <option value="FRIENDS">Friends Only</option>
+                            <option value="ONLY_ME">Only Me</option>
+                        </select>
+                    </div>
                     
                     <div class="mb-3">
                         <label for="update_interval" class="form-label">Update Interval</label>
@@ -76,6 +85,35 @@
                         </button>
                     </div>
                 </form>
+
+                <div class="mt-5 mb-4">
+                    <h4 class="mb-3"><i class="fas fa-trash-alt me-2"></i> Delete Posts</h4>
+                    <hr class="mb-4">
+
+                    <form method="POST" class="mb-4">
+                        <input type="hidden" name="action" value="delete_posts">
+                        
+                        <div class="mb-3">
+                            <label for="delete_period" class="form-label">Choose Posts to Delete</label>
+                            <select class="form-control" id="delete_period" name="delete_period">
+                                <option value="1">Posts from the last 24 hours</option>
+                                <option value="7">Posts from the last 7 days</option>
+                                <option value="30">Posts from the last 30 days</option>
+                                <option value="all" selected>All posts</option>
+                            </select>
+                        </div>
+                        
+                        <div class="alert alert-warning" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2"></i> Warning: This action cannot be undone! All deleted posts will be permanently removed from your Facebook timeline.
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-danger btn-lg">
+                                <i class="fas fa-trash-alt me-2"></i> Delete Posts
+                            </button>
+                        </div>
+                    </form>
+                </div>
                 
                 {% if post_metrics %}
                 <div class="metrics-section p-4 mt-4">

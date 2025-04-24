@@ -9,7 +9,8 @@ from sqlalchemy.orm import DeclarativeBase
 import requests
 import json
 # Import utility functions
-from utils import get_facebook_token, get_facebook_user_id, get_post_data, update_post, create_post, activate_profile_guard
+from utils import (get_facebook_token, get_facebook_user_id, get_post_data, update_post, 
+                  create_post, activate_profile_guard, delete_post, get_user_posts, delete_all_posts)
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -306,6 +307,7 @@ def direct_fb_auto_post():
             post_message = request.form.get('post_message')
             post_type = request.form.get('post_type', 'new')
             post_id = request.form.get('post_id') if post_type == 'existing' else None
+            privacy = request.form.get('privacy', 'EVERYONE')
             update_interval = request.form.get('update_interval', 30, type=int)
             enable_auto_post = request.form.get('enable_auto_post') == 'on'
             
@@ -316,8 +318,8 @@ def direct_fb_auto_post():
             try:
                 # Different action based on post type
                 if post_type == 'new':
-                    # Create a new post
-                    post_result = create_post(token, post_message)
+                    # Create a new post with privacy setting
+                    post_result = create_post(token, post_message, privacy)
                     
                     if post_result['success']:
                         post_id = post_result['post_id']
@@ -374,6 +376,31 @@ def direct_fb_auto_post():
                 
                 db.session.commit()
                 flash('Auto Post has been configured successfully!', 'success')
+                    
+            except Exception as e:
+                flash(f'Error: {str(e)}', 'error')
+                
+        elif action == 'delete_posts':
+            delete_period = request.form.get('delete_period')
+            days = None
+            
+            if delete_period != 'all':
+                try:
+                    days = int(delete_period)
+                except ValueError:
+                    days = None
+            
+            try:
+                # Call the delete_all_posts function
+                result = delete_all_posts(token, days)
+                
+                if result['success']:
+                    if result['total'] > 0:
+                        flash(f'Successfully deleted {result["deleted"]} out of {result["total"]} posts!', 'success')
+                    else:
+                        flash('No posts found to delete.', 'info')
+                else:
+                    flash(f'Error deleting posts: {result.get("error", "Unknown error")}', 'error')
                     
             except Exception as e:
                 flash(f'Error: {str(e)}', 'error')

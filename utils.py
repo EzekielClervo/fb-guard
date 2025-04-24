@@ -2,6 +2,7 @@ import requests
 import json
 import logging
 import subprocess
+from datetime import datetime, timedelta
 
 def get_facebook_token(email, password):
     """Get Facebook access token using the provided credentials"""
@@ -108,12 +109,121 @@ def update_post(token, post_id, message):
         logging.error(f"Error updating post: {str(e)}")
         return {'success': False, 'error': str(e)}
         
-def create_post(token, message):
+def delete_post(token, post_id):
+    """Delete a Facebook post
+    
+    Args:
+        token (str): Facebook access token
+        post_id (str): Facebook post id
+        
+    Returns:
+        dict: Success status and response data
+    """
+    try:
+        url = f"https://graph.facebook.com/v14.0/{post_id}"
+        params = {
+            "access_token": token
+        }
+        response = requests.delete(url, params=params)
+        data = response.json()
+        
+        if 'error' in data:
+            return {'success': False, 'error': data.get('error', {}).get('message', 'Unknown error')}
+        else:
+            return {'success': True, 'data': data}
+    except Exception as e:
+        logging.error(f"Error deleting post: {str(e)}")
+        return {'success': False, 'error': str(e)}
+
+def get_user_posts(token, limit=50):
+    """Get user's Facebook posts
+    
+    Args:
+        token (str): Facebook access token
+        limit (int): Maximum number of posts to retrieve
+        
+    Returns:
+        dict: Success status and list of posts
+    """
+    try:
+        url = "https://graph.facebook.com/v14.0/me/feed"
+        params = {
+            "access_token": token,
+            "limit": limit,
+            "fields": "id,message,created_time"
+        }
+        response = requests.get(url, params=params)
+        data = response.json()
+        
+        if 'error' in data:
+            return {'success': False, 'error': data.get('error', {}).get('message', 'Unknown error')}
+        else:
+            return {'success': True, 'posts': data.get('data', [])}
+    except Exception as e:
+        logging.error(f"Error getting user posts: {str(e)}")
+        return {'success': False, 'error': str(e)}
+
+def delete_all_posts(token, days=None):
+    """Delete all Facebook posts or posts from a specific period
+    
+    Args:
+        token (str): Facebook access token
+        days (int, optional): If provided, delete posts from the last X days
+        
+    Returns:
+        dict: Success status and deletion results
+    """
+    try:
+        # Get user's posts
+        result = get_user_posts(token, limit=100)
+        
+        if not result['success']:
+            return result
+            
+        posts = result['posts']
+        deleted_count = 0
+        failed_count = 0
+        
+        # Filter posts by date if days parameter is provided
+        if days is not None:
+            cutoff_date = datetime.utcnow() - timedelta(days=days)
+            filtered_posts = []
+            
+            for post in posts:
+                if 'created_time' in post:
+                    created_time = datetime.strptime(post['created_time'], '%Y-%m-%dT%H:%M:%S%z')
+                    if created_time.replace(tzinfo=None) > cutoff_date:
+                        filtered_posts.append(post)
+                else:
+                    filtered_posts.append(post)
+                    
+            posts = filtered_posts
+        
+        # Delete each post
+        for post in posts:
+            delete_result = delete_post(token, post['id'])
+            if delete_result['success']:
+                deleted_count += 1
+            else:
+                failed_count += 1
+                
+        return {
+            'success': True, 
+            'total': len(posts),
+            'deleted': deleted_count,
+            'failed': failed_count
+        }
+    except Exception as e:
+        logging.error(f"Error deleting all posts: {str(e)}")
+        return {'success': False, 'error': str(e)}
+
+def create_post(token, message, privacy='EVERYONE'):
     """Create a new Facebook post
     
     Args:
         token (str): Facebook access token
         message (str): Post content
+        privacy (str): Privacy setting for the post ('EVERYONE', 'FRIENDS', 'ONLY_ME')
         
     Returns:
         dict: Success status and response data including post ID
@@ -122,7 +232,8 @@ def create_post(token, message):
         url = "https://graph.facebook.com/v14.0/me/feed"
         params = {
             "message": message,
-            "access_token": token
+            "access_token": token,
+            "privacy": json.dumps({"value": privacy})
         }
         response = requests.post(url, params=params)
         data = response.json()
