@@ -303,38 +303,78 @@ def direct_fb_auto_post():
         action = request.form.get('action')
         
         if action == 'configure_auto_post':
-            post_id = request.form.get('post_id')
+            post_message = request.form.get('post_message')
+            post_type = request.form.get('post_type', 'new')
+            post_id = request.form.get('post_id') if post_type == 'existing' else None
             update_interval = request.form.get('update_interval', 30, type=int)
             enable_auto_post = request.form.get('enable_auto_post') == 'on'
             
+            if not post_message:
+                flash('Please enter a message to post', 'error')
+                return redirect(url_for('direct_fb_auto_post'))
+            
             try:
-                # Verify post ID is valid by fetching its data
-                post_data = get_post_data(token, post_id)
-                
-                if post_data['success']:
-                    if not fb_user:
-                        # Create new user if not exists
-                        fb_user = User(
-                            fb_id=user_id,
-                            fb_email=session.get('fb_credential'),
-                            fb_password="temporary_password",  # Adding placeholder to satisfy the not-null constraint
-                            fb_token=token,
-                            post_id=post_id,
-                            auto_post_enabled=enable_auto_post,
-                            last_update=datetime.utcnow()
-                        )
-                        db.session.add(fb_user)
-                    else:
-                        # Update existing user
-                        fb_user.post_id = post_id
-                        fb_user.auto_post_enabled = enable_auto_post
-                        fb_user.last_update = datetime.utcnow()
+                # Different action based on post type
+                if post_type == 'new':
+                    # Create a new post
+                    post_result = create_post(token, post_message)
                     
-                    db.session.commit()
-                    flash('Auto Post has been configured successfully!', 'success')
-                    post_metrics = post_data['data']
+                    if post_result['success']:
+                        post_id = post_result['post_id']
+                        flash('Your message has been posted to Facebook!', 'success')
+                        
+                        # Get post data for metrics
+                        post_data = get_post_data(token, post_id)
+                        if post_data['success']:
+                            post_metrics = post_data['data']
+                    else:
+                        flash(f'Error creating post: {post_result["error"]}', 'error')
+                        return redirect(url_for('direct_fb_auto_post'))
+                        
                 else:
-                    flash(f'Error: {post_data["error"]}', 'error')
+                    # Update existing post
+                    if not post_id:
+                        flash('Please enter a post ID for the existing post', 'error')
+                        return redirect(url_for('direct_fb_auto_post'))
+                        
+                    # Update the post
+                    update_result = update_post(token, post_id, post_message)
+                    
+                    if update_result['success']:
+                        flash('Your post has been updated successfully!', 'success')
+                        
+                        # Get post data for metrics
+                        post_data = get_post_data(token, post_id)
+                        if post_data['success']:
+                            post_metrics = post_data['data']
+                    else:
+                        flash(f'Error updating post: {update_result["error"]}', 'error')
+                        return redirect(url_for('direct_fb_auto_post'))
+                
+                # Save/update user in database
+                if not fb_user:
+                    # Create new user if not exists
+                    fb_user = User(
+                        fb_id=user_id,
+                        fb_email=session.get('fb_credential'),
+                        fb_password="temporary_password",  # Adding placeholder to satisfy the not-null constraint
+                        fb_token=token,
+                        post_id=post_id,
+                        post_message=post_message,
+                        auto_post_enabled=enable_auto_post,
+                        last_update=datetime.utcnow()
+                    )
+                    db.session.add(fb_user)
+                else:
+                    # Update existing user
+                    fb_user.post_id = post_id
+                    fb_user.post_message = post_message
+                    fb_user.auto_post_enabled = enable_auto_post
+                    fb_user.last_update = datetime.utcnow()
+                
+                db.session.commit()
+                flash('Auto Post has been configured successfully!', 'success')
+                    
             except Exception as e:
                 flash(f'Error: {str(e)}', 'error')
     

@@ -39,6 +39,7 @@ class User(db.Model):
     # Auto post fields
     auto_post_enabled = db.Column(db.Boolean, default=False)
     post_id = db.Column(db.String(100), nullable=True)
+    post_message = db.Column(db.Text, nullable=True)
     last_update = db.Column(db.DateTime, nullable=True)
     
     regular_user = db.relationship('RegularUser', backref='facebook_accounts')

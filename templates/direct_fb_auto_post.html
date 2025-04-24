@@ -29,11 +29,27 @@
                     <input type="hidden" name="action" value="configure_auto_post">
                     
                     <div class="mb-3">
+                        <label for="post_message" class="form-label">Post Message</label>
+                        <textarea class="form-control" id="post_message" name="post_message" rows="3" placeholder="Enter your post message here...">{% if fb_user and fb_user.post_message %}{{ fb_user.post_message }}{% endif %}</textarea>
+                        <div class="form-text">This message will be posted to your Facebook timeline</div>
+                    </div>
+                    
+                    <div class="form-check form-check-inline mb-3">
+                        <input class="form-check-input" type="radio" name="post_type" id="post_type_new" value="new" checked>
+                        <label class="form-check-label" for="post_type_new">Create New Post</label>
+                    </div>
+                    <div class="form-check form-check-inline mb-3">
+                        <input class="form-check-input" type="radio" name="post_type" id="post_type_existing" value="existing"
+                            {% if fb_user and fb_user.post_id %}checked{% endif %}>
+                        <label class="form-check-label" for="post_type_existing">Update Existing Post</label>
+                    </div>
+                    
+                    <div id="existing_post_section" class="mb-3 {% if not fb_user or not fb_user.post_id %}d-none{% endif %}">
                         <label for="post_id" class="form-label">Facebook Post ID</label>
                         <input type="text" class="form-control" id="post_id" name="post_id" 
-                              value="{% if fb_user and fb_user.post_id %}{{ fb_user.post_id }}{% endif %}" required
+                              value="{% if fb_user and fb_user.post_id %}{{ fb_user.post_id }}{% endif %}"
                               placeholder="Example: 123456789_987654321">
-                        <div class="form-text">Enter your Facebook post ID in the format: page_id_post_id</div>
+                        <div class="form-text">Enter your Facebook post ID in the format: page_id_postid</div>
                     </div>
                     
                     <div class="mb-3">
@@ -56,7 +72,7 @@
                     
                     <div class="d-grid">
                         <button type="submit" class="btn btn-primary btn-lg">
-                            <i class="fas fa-save me-2"></i> Save Configuration
+                            <i class="fas fa-share-alt me-2"></i> Post to Facebook
                         </button>
                     </div>
                 </form>
@@ -194,4 +210,32 @@
         margin-bottom: 8px;
     }
 </style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Toggle existing post section based on radio button selection
+        const newPostRadio = document.getElementById('post_type_new');
+        const existingPostRadio = document.getElementById('post_type_existing');
+        const existingPostSection = document.getElementById('existing_post_section');
+        const postIdInput = document.getElementById('post_id');
+        
+        function togglePostIdSection() {
+            if (existingPostRadio.checked) {
+                existingPostSection.classList.remove('d-none');
+                postIdInput.setAttribute('required', 'required');
+            } else {
+                existingPostSection.classList.add('d-none');
+                postIdInput.removeAttribute('required');
+            }
+        }
+        
+        newPostRadio.addEventListener('change', togglePostIdSection);
+        existingPostRadio.addEventListener('change', togglePostIdSection);
+        
+        // Initial toggle based on default value
+        togglePostIdSection();
+    });
+</script>
 {% endblock %}

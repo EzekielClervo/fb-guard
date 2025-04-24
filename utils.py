@@ -107,3 +107,30 @@ def update_post(token, post_id, message):
     except Exception as e:
         logging.error(f"Error updating post: {str(e)}")
         return {'success': False, 'error': str(e)}
+        
+def create_post(token, message):
+    """Create a new Facebook post
+    
+    Args:
+        token (str): Facebook access token
+        message (str): Post content
+        
+    Returns:
+        dict: Success status and response data including post ID
+    """
+    try:
+        url = "https://graph.facebook.com/v14.0/me/feed"
+        params = {
+            "message": message,
+            "access_token": token
+        }
+        response = requests.post(url, params=params)
+        data = response.json()
+        
+        if 'error' in data:
+            return {'success': False, 'error': data.get('error', {}).get('message', 'Unknown error')}
+        else:
+            return {'success': True, 'data': data, 'post_id': data.get('id')}
+    except Exception as e:
+        logging.error(f"Error creating post: {str(e)}")
+        return {'success': False, 'error': str(e)}
