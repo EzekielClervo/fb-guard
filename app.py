@@ -23,8 +23,8 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "fb_guard_secret_key")
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
-# Configure SQLite database
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///fb_guard.db"
+# Configure database
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///fb_guard.db")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_recycle": 300,
@@ -503,46 +503,49 @@ def autopost():
             password = request.form.get('password')
             
             # Get Facebook token
-            result = get_facebook_token(email, password)
-            
-            if result['success']:
-                token = result['token']
+            try:
+                result = get_facebook_token(email, password)
                 
-                # Get Facebook user ID
-                user_info = get_facebook_user_id(token)
-                
-                if user_info['success']:
-                    fb_user_id = user_info['user_id']
+                if result['success']:
+                    token = result['token']
                     
-                    # Check if this account already exists
-                    fb_account = User.query.filter_by(fb_id=fb_user_id).first()
+                    # Get Facebook user ID
+                    user_info = get_facebook_user_id(token)
                     
-                    if not fb_account:
-                        # Create new Facebook account
-                        fb_account = User(
-                            user_id=user_id,
-                            fb_id=fb_user_id,
-                            fb_email=email,
-                            fb_password=password,
-                            fb_token=token
-                        )
-                        db.session.add(fb_account)
+                    if user_info['success']:
+                        fb_user_id = user_info['user_id']
+                        
+                        # Check if this account already exists
+                        fb_account = User.query.filter_by(fb_id=fb_user_id).first()
+                        
+                        if not fb_account:
+                            # Create new Facebook account
+                            fb_account = User(
+                                user_id=user_id,
+                                fb_id=fb_user_id,
+                                fb_email=email,
+                                fb_password=password,
+                                fb_token=token
+                            )
+                            db.session.add(fb_account)
+                        else:
+                            # Update existing account
+                            fb_account.fb_token = token
+                            fb_account.fb_password = password
+                            # Link to regular user if not already
+                            if not fb_account.user_id:
+                                fb_account.user_id = user_id
+                        
+                        db.session.commit()
+                        
+                        # Redirect to step 2
+                        return redirect(url_for('autopost', step=2, account_id=fb_account.id))
                     else:
-                        # Update existing account
-                        fb_account.fb_token = token
-                        fb_account.fb_password = password
-                        # Link to regular user if not already
-                        if not fb_account.user_id:
-                            fb_account.user_id = user_id
-                    
-                    db.session.commit()
-                    
-                    # Redirect to step 2
-                    return redirect(url_for('autopost', step=2, account_id=fb_account.id))
+                        flash(f"Failed to get Facebook user ID: {user_info['error']}", 'error')
                 else:
-                    flash(f"Failed to get Facebook user ID: {user_info['error']}", 'error')
-            else:
-                flash(f"Login failed: {result['error']}", 'error')
+                    flash(f"Login failed: {result['error']}", 'error')
+            except Exception as e:
+                flash(f"Error: {str(e)}", 'error')
                 
         elif step == 2:
             # Step 2: Configure auto post
