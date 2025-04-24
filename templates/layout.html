@@ -27,10 +27,20 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('index') }}" style="color: #00E5FF; text-shadow: 0 0 5px rgba(0, 229, 255, 0.5);">Home</a>
                     </li>
+                    {% if session.get('user_logged_in') %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('user_dashboard') }}" style="color: #00E5FF; text-shadow: 0 0 5px rgba(0, 229, 255, 0.5);">Dashboard</a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('profile_guard') }}" style="color: #00E5FF; text-shadow: 0 0 5px rgba(0, 229, 255, 0.5);">Profile Guard</a>
                     </li>
-                    {% if session.get('admin_logged_in') %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('autopost') }}" style="color: #00E5FF; text-shadow: 0 0 5px rgba(0, 229, 255, 0.5);">Auto Post</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}" style="color: #00E5FF; text-shadow: 0 0 5px rgba(0, 229, 255, 0.5);">Logout</a>
+                    </li>
+                    {% elif session.get('admin_logged_in') %}
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('admin_dashboard') }}" style="color: #00E5FF; text-shadow: 0 0 5px rgba(0, 229, 255, 0.5);">Admin Dashboard</a>
                     </li>
@@ -39,7 +49,13 @@
                     </li>
                     {% else %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('admin_login') }}" style="color: #00E5FF; text-shadow: 0 0 5px rgba(0, 229, 255, 0.5);">Admin Login</a>
+                        <a class="nav-link" href="{{ url_for('login') }}" style="color: #00E5FF; text-shadow: 0 0 5px rgba(0, 229, 255, 0.5);">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('register') }}" style="color: #00E5FF; text-shadow: 0 0 5px rgba(0, 229, 255, 0.5);">Register</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_login') }}" style="color: #00E5FF; text-shadow: 0 0 5px rgba(0, 229, 255, 0.5);">Admin</a>
                     </li>
                     {% endif %}
                 </ul>

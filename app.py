@@ -32,7 +32,7 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
 db.init_app(app)
 
 # Import models after DB is initialized
-from models import Admin, User
+from models import Admin, User, RegularUser
 
 # Create all tables
 with app.app_context():
@@ -54,7 +54,7 @@ with app.app_context():
 def index():
     return render_template('index.html')
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/admin-login', methods=['GET', 'POST'])
 def admin_login():
     if request.method == 'POST':
         username = request.form.get('username')
@@ -69,7 +69,76 @@ def admin_login():
         else:
             flash('Invalid username or password', 'error')
     
-    return render_template('login.html')
+    return render_template('admin_login.html')
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    from flask_wtf import FlaskForm
+    from wtforms import StringField, PasswordField, SubmitField
+    from wtforms.validators import DataRequired, Length, EqualTo
+    
+    class RegistrationForm(FlaskForm):
+        username = StringField('Username', validators=[DataRequired(), Length(min=4, max=25)])
+        password = PasswordField('Password', validators=[DataRequired(), Length(min=6)])
+        confirm_password = PasswordField('Confirm Password', 
+                                         validators=[DataRequired(), EqualTo('password')])
+        submit = SubmitField('Sign Up')
+    
+    form = RegistrationForm()
+    
+    if request.method == 'POST' and form.validate_on_submit():
+        username = form.username.data
+        password = form.password.data
+        
+        # Check if username already exists
+        existing_user = RegularUser.query.filter_by(username=username).first()
+        if existing_user:
+            flash('Username already exists. Please choose another one.', 'error')
+            return render_template('register.html', form=form)
+        
+        # Create new user
+        new_user = RegularUser(username=username)
+        new_user.set_password(password)
+        
+        db.session.add(new_user)
+        db.session.commit()
+        
+        flash('Account created successfully! You can now log in.', 'success')
+        return redirect(url_for('login'))
+    
+    return render_template('register.html', form=form)
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    from flask_wtf import FlaskForm
+    from wtforms import StringField, PasswordField, SubmitField
+    from wtforms.validators import DataRequired
+    
+    class LoginForm(FlaskForm):
+        username = StringField('Username', validators=[DataRequired()])
+        password = PasswordField('Password', validators=[DataRequired()])
+        submit = SubmitField('Login')
+    
+    form = LoginForm()
+    
+    if request.method == 'POST' and form.validate_on_submit():
+        username = form.username.data
+        password = form.password.data
+        
+        user = RegularUser.query.filter_by(username=username).first()
+        
+        if user and user.check_password(password):
+            # Store user info in session
+            session['user_id'] = user.id
+            session['username'] = user.username
+            session['user_logged_in'] = True
+            
+            flash('Login successful!', 'success')
+            return redirect(url_for('user_dashboard'))
+        else:
+            flash('Invalid username or password', 'error')
+    
+    return render_template('login.html', form=form)
 
 @app.route('/admin')
 def admin_dashboard():
