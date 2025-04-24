@@ -13,19 +13,20 @@ A comprehensive Facebook profile security web application focused on enhancing u
 
 ## Technology Stack
 
-- **Backend**: Flask, SQLAlchemy, PostgreSQL
+- **Backend**: Flask, SQLAlchemy, SQLite (free tier)
 - **Frontend**: HTML5, CSS3, Bootstrap 5, JavaScript
 - **Authentication**: Flask-Login, Facebook API integration
 - **Task Scheduling**: APScheduler for automated posts and updates
-- **Deployment**: Render.com with PostgreSQL database
+- **Deployment**: Render.com with free tier hosting
 
 ## Deployment
 
-This application is configured for deployment on Render.com:
+This application is configured for deployment on Render.com's free tier:
 
 1. Create a new web service pointing to this repository
 2. Render will automatically detect the `render.yaml` configuration
-3. The configuration will create both the web service and PostgreSQL database
+3. The application will use SQLite for the database in the free tier
+4. No payment information is required for deployment
 
 ## Development
 

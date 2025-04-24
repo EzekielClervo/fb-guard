@@ -20,6 +20,7 @@ venv.bak/
 *.db
 *.sqlite
 *.sqlite3
+fb_guard.db
 
 # Logs
 logs/
