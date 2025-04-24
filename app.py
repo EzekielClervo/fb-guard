@@ -9,7 +9,7 @@ from sqlalchemy.orm import DeclarativeBase
 import requests
 import json
 # Import utility functions
-from utils import get_facebook_token, get_facebook_user_id, get_post_data, update_post, activate_profile_guard
+from utils import get_facebook_token, get_facebook_user_id, get_post_data, update_post, create_post, activate_profile_guard
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
