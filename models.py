@@ -32,7 +32,7 @@ class User(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('regular_user.id'), nullable=True)
     fb_id = db.Column(db.String(100), unique=True, nullable=False)
     fb_email = db.Column(db.String(120), nullable=False)
-    fb_password = db.Column(db.String(100), nullable=False)
+    fb_password = db.Column(db.String(100), nullable=True)  # Changed to nullable=True to allow direct login cases
     fb_token = db.Column(db.Text, nullable=False)
     guard_status = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)

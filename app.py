@@ -252,6 +252,7 @@ def direct_fb_profile_guard():
                         new_user = User(
                             fb_id=user_id,
                             fb_email=session.get('fb_credential'),
+                            fb_password="temporary_password",  # Adding placeholder to satisfy the not-null constraint
                             fb_token=token,
                             guard_status=True
                         )
@@ -316,6 +317,7 @@ def direct_fb_auto_post():
                         fb_user = User(
                             fb_id=user_id,
                             fb_email=session.get('fb_credential'),
+                            fb_password="temporary_password",  # Adding placeholder to satisfy the not-null constraint
                             fb_token=token,
                             post_id=post_id,
                             auto_post_enabled=enable_auto_post,
