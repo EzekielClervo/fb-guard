@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: fb-guard
+    env: python
+    buildCommand: pip install -r requirements-render.txt
+    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers=2 main:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.7
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: fb-guard-db
+          property: connectionString
+
+databases:
+  - name: fb-guard-db
+    databaseName: fb_guard
+    user: fb_guard_user
+    plan: free
