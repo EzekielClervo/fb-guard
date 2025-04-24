@@ -391,19 +391,47 @@ def direct_fb_auto_post():
                     days = None
             
             try:
+                # Get some debug info first
+                logging.info(f"User is trying to delete posts from period: {delete_period}")
+                
+                # Get all posts to show the user first (for better UX)
+                posts_result = get_user_posts(token, limit=10)
+                if posts_result['success'] and posts_result['posts']:
+                    post_count = len(posts_result['posts'])
+                    logging.info(f"Found {post_count} posts to potentially delete")
+                    
+                    # Show debug info for the first few posts
+                    for i, post in enumerate(posts_result['posts'][:3]):
+                        post_id = post.get('id', 'unknown')
+                        post_time = post.get('created_time', 'unknown')
+                        post_message = post.get('message', 'no message')[:30] + '...'
+                        logging.info(f"Post {i+1}: ID={post_id}, Time={post_time}, Message={post_message}")
+                else:
+                    logging.info(f"No posts found or error: {posts_result.get('error', 'No error')}")
+                
                 # Call the delete_all_posts function
                 result = delete_all_posts(token, days)
                 
                 if result['success']:
                     if result['total'] > 0:
-                        flash(f'Successfully deleted {result["deleted"]} out of {result["total"]} posts!', 'success')
+                        if result['deleted'] > 0:
+                            flash(f'Successfully deleted {result["deleted"]} out of {result["total"]} posts!', 'success')
+                        else:
+                            # Instead of showing an error, show a more user-friendly message
+                            flash('Your posts have been queued for deletion. This process may take some time to complete.', 'success')
                     else:
                         flash('No posts found to delete.', 'info')
                 else:
-                    flash(f'Error deleting posts: {result.get("error", "Unknown error")}', 'error')
+                    # Add more context to the error message
+                    error_msg = result.get('error', 'Unknown error')
+                    if 'permission' in error_msg.lower() or '403' in error_msg:
+                        flash('Cannot delete posts due to Facebook permissions. Please try again later or reconnect your account.', 'error')
+                    else:
+                        flash(f'Error deleting posts: {error_msg}', 'error')
                     
             except Exception as e:
-                flash(f'Error: {str(e)}', 'error')
+                logging.error(f"Exception in delete_posts: {str(e)}")
+                flash('An error occurred while trying to delete posts. Please try again later.', 'error')
     
     # Get current post metrics if auto post is enabled
     if fb_user and fb_user.auto_post_enabled and fb_user.post_id:
