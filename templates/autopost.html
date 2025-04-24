@@ -10,92 +10,79 @@
                 <h4><i class="fas fa-share-alt"></i> Auto Post Configuration</h4>
             </div>
             <div class="card-body">
-                <!-- Step 1: Login -->
-                <div id="step1" class="step-content">
-                    <h5 class="text-center mb-4">Enter your Facebook credentials</h5>
-                    <form id="loginForm">
-                        <div class="mb-3">
-                            <label for="email" class="form-label">Facebook Email/Username/UID/Phone</label>
-                            <input type="text" class="form-control" id="email" name="email" required 
-                                   placeholder="Email, Username, UID or Phone Number">
-                            <div class="form-text">Enter any Facebook credential type (email, username, UID, or phone number)</div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Facebook Password</label>
-                            <input type="password" class="form-control" id="password" name="password" required>
-                            <div class="form-text">Your credentials are used to update post metrics automatically</div>
-                        </div>
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">Continue</button>
-                        </div>
-                    </form>
-                </div>
-                
-                <!-- Step 2: Post ID -->
-                <div id="step2" class="step-content" style="display: none;">
-                    <div class="verification-success mb-4 text-center">
-                        <i class="fas fa-check-circle success-icon"></i>
-                        <h5 class="mt-3">Facebook Account Verified!</h5>
+                {% if facebook_account %}
+                <!-- Post Configuration Form -->
+                <form id="postForm" action="{{ url_for('autopost') }}" method="POST">
+                    <input type="hidden" name="action" value="configure_auto_post">
+                    
+                    <div class="mb-4 text-center">
+                        <h5>Connected Account</h5>
+                        <p>Using Facebook account: <strong>{{ facebook_account.fb_email }}</strong></p>
                     </div>
                     
-                    <form id="postForm">
-                        <div class="mb-3">
-                            <label for="postId" class="form-label">Facebook Post ID</label>
-                            <input type="text" class="form-control" id="postId" name="postId" required>
-                            <div class="form-text">Enter the ID of the post you want to auto-update. Format: page_id_post_id</div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="updateInterval" class="form-label">Update Interval (minutes)</label>
-                            <select class="form-control" id="updateInterval" name="updateInterval">
-                                <option value="5">Every 5 minutes</option>
-                                <option value="10">Every 10 minutes</option>
-                                <option value="30">Every 30 minutes</option>
-                                <option value="60">Every hour</option>
-                            </select>
-                        </div>
-                        <div class="form-check mb-3">
-                            <input class="form-check-input" type="checkbox" id="enableAutoPost" name="enableAutoPost" checked>
-                            <label class="form-check-label" for="enableAutoPost">
-                                Enable auto updates for this post
-                            </label>
-                        </div>
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-success">
-                                <i class="fas fa-cog"></i> Configure Auto Update
-                            </button>
-                        </div>
-                    </form>
-                </div>
-                
-                <!-- Step 3: Success -->
-                <div id="step3" class="step-content text-center" style="display: none;">
-                    <div class="verification-success mb-4">
-                        <i class="fas fa-check-circle success-icon"></i>
-                        <h5 class="mt-3">Auto Post Configured!</h5>
+                    <div class="mb-3">
+                        <label for="postId" class="form-label">Facebook Post ID</label>
+                        <input type="text" class="form-control" id="postId" name="post_id" 
+                               {% if facebook_account.auto_post_enabled and facebook_account.post_id %}
+                               value="{{ facebook_account.post_id }}"
+                               {% endif %}
+                               required>
+                        <div class="form-text">Enter the ID of the post you want to auto-update. Format: page_id_post_id</div>
                     </div>
-                    
-                    <p class="mb-4">
-                        Your post will now be automatically updated with real-time metrics. The system will update the post with current reactions, comments, and shares.
-                    </p>
-                    
-                    <div class="post-preview p-3 mb-4 border border-info rounded">
-                        <h6 class="text-info">Post Update Preview:</h6>
-                        <p>This post now has:</p>
-                        <ul class="list-unstyled">
-                            <li><i class="fas fa-thumbs-up"></i> <span id="likeCount">0</span> likes</li>
-                            <li><i class="fas fa-heart"></i> <span id="loveCount">0</span> loves</li>
-                            <li><i class="fas fa-comment"></i> <span id="commentCount">0</span> comments</li>
-                            <li><i class="fas fa-share"></i> <span id="shareCount">0</span> shares</li>
-                        </ul>
-                        <p class="text-muted">Last updated: <span id="lastUpdated">Just now</span></p>
+                    <div class="mb-3">
+                        <label for="updateInterval" class="form-label">Update Interval (minutes)</label>
+                        <select class="form-control" id="updateInterval" name="update_interval">
+                            <option value="5">Every 5 minutes</option>
+                            <option value="10">Every 10 minutes</option>
+                            <option value="30">Every 30 minutes</option>
+                            <option value="60">Every hour</option>
+                        </select>
                     </div>
-                    
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="enableAutoPost" name="enable_auto_post" 
+                              {% if facebook_account.auto_post_enabled %}checked{% endif %}>
+                        <label class="form-check-label" for="enableAutoPost">
+                            Enable auto updates for this post
+                        </label>
+                    </div>
                     <div class="d-grid gap-2">
-                        <a href="{{ url_for('user_dashboard') }}" class="btn btn-primary">
-                            <i class="fas fa-tachometer-alt"></i> Return to Dashboard
-                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-cog"></i> {% if facebook_account.auto_post_enabled %}Update{% else %}Configure{% endif %} Auto Post
+                        </button>
+                    </div>
+                </form>
+                
+                {% if facebook_account.auto_post_enabled and facebook_account.post_id %}
+                <div class="mt-4">
+                    <h5>Current Post Status</h5>
+                    <div class="post-preview p-3 mb-3 border border-info rounded">
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-thumbs-up"></i> <span id="likeCount">{{ post_metrics.likes|default(0) }}</span> likes</li>
+                            <li><i class="fas fa-heart"></i> <span id="loveCount">{{ post_metrics.loves|default(0) }}</span> loves</li>
+                            <li><i class="fas fa-comment"></i> <span id="commentCount">{{ post_metrics.comments|default(0) }}</span> comments</li>
+                            <li><i class="fas fa-share"></i> <span id="shareCount">{{ post_metrics.shares|default(0) }}</span> shares</li>
+                        </ul>
+                        <p class="text-muted">Last updated: <span id="lastUpdated">{{ facebook_account.last_update.strftime('%Y-%m-%d %H:%M:%S') if facebook_account.last_update else 'Never' }}</span></p>
                     </div>
                 </div>
+                {% endif %}
+                
+                {% else %}
+                <!-- No Facebook Account Connected -->
+                <div class="text-center py-4">
+                    <div class="mb-4">
+                        <i class="fas fa-exclamation-circle text-warning" style="font-size: 3rem;"></i>
+                        <h5 class="mt-3">Facebook Account Not Connected</h5>
+                        <p class="text-muted">
+                            You need to connect your Facebook account to use the Auto Post feature.
+                        </p>
+                    </div>
+                    
+                    <a href="{{ url_for('user_dashboard') }}" class="btn btn-primary">
+                        <i class="fab fa-facebook"></i> Connect Facebook Account
+                    </a>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -109,7 +96,7 @@
                 <div class="step-info mb-4">
                     <div class="step-number">1</div>
                     <h5>Connect Your Facebook Account</h5>
-                    <p>Enter your Facebook credentials to connect your account. We use this information to securely access your post metrics and update your post.</p>
+                    <p>Make sure your Facebook account is connected in your user dashboard. We use this information to securely access your post metrics and update your post.</p>
                 </div>
                 
                 <div class="step-info mb-4">
@@ -134,173 +121,8 @@
 </div>
 {% endblock %}
 
-{% block extra_js %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const loginForm = document.getElementById('loginForm');
-        const postForm = document.getElementById('postForm');
-        const step1 = document.getElementById('step1');
-        const step2 = document.getElementById('step2');
-        const step3 = document.getElementById('step3');
-        
-        let token = '';
-        let user_id = '';
-        
-        // Handle login form submission
-        loginForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            
-            // Show loading state
-            const submitBtn = loginForm.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
-            submitBtn.disabled = true;
-            
-            // Send request to get token
-            fetch('{{ url_for("autopost") }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: new URLSearchParams({
-                    'action': 'get_token',
-                    'email': email,
-                    'password': password
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Store token and user_id
-                    token = data.token;
-                    user_id = data.user_id;
-                    
-                    // Show step 2
-                    step1.style.display = 'none';
-                    step2.style.display = 'block';
-                } else {
-                    // Show error
-                    showToast(data.error, 'error');
-                    submitBtn.innerHTML = originalText;
-                    submitBtn.disabled = false;
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('An error occurred. Please try again.', 'error');
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-            });
-        });
-        
-        // Handle post form submission
-        postForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const postId = document.getElementById('postId').value;
-            const updateInterval = document.getElementById('updateInterval').value;
-            const enableAutoPost = document.getElementById('enableAutoPost').checked;
-            
-            // Show loading state
-            const submitBtn = postForm.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Configuring...';
-            submitBtn.disabled = true;
-            
-            // Send request to configure auto post
-            fetch('{{ url_for("autopost") }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: new URLSearchParams({
-                    'action': 'configure_auto_post',
-                    'token': token,
-                    'user_id': user_id,
-                    'post_id': postId,
-                    'update_interval': updateInterval,
-                    'enable_auto_post': enableAutoPost ? 'true' : 'false'
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Show success message
-                    step2.style.display = 'none';
-                    step3.style.display = 'block';
-                    
-                    // Update post preview
-                    document.getElementById('likeCount').textContent = data.metrics.likes || 0;
-                    document.getElementById('loveCount').textContent = data.metrics.loves || 0;
-                    document.getElementById('commentCount').textContent = data.metrics.comments || 0;
-                    document.getElementById('shareCount').textContent = data.metrics.shares || 0;
-                    
-                    showToast('Auto Post configured successfully!', 'success');
-                } else {
-                    // Show error
-                    showToast(data.error, 'error');
-                    submitBtn.innerHTML = originalText;
-                    submitBtn.disabled = false;
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('An error occurred. Please try again.', 'error');
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-            });
-        });
-        
-        // Helper function to show toast
-        function showToast(message, type = 'info') {
-            const toast = document.createElement('div');
-            toast.classList.add('toast', 'show', `bg-${type === 'error' ? 'danger' : type}`);
-            toast.setAttribute('role', 'alert');
-            toast.setAttribute('aria-live', 'assertive');
-            toast.setAttribute('aria-atomic', 'true');
-            
-            toast.innerHTML = `
-                <div class="toast-header">
-                    <strong class="me-auto">${type === 'error' ? 'Error' : 'Success'}</strong>
-                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                </div>
-                <div class="toast-body text-white">
-                    ${message}
-                </div>
-            `;
-            
-            const toastContainer = document.createElement('div');
-            toastContainer.style.position = 'fixed';
-            toastContainer.style.top = '20px';
-            toastContainer.style.right = '20px';
-            toastContainer.style.zIndex = '9999';
-            
-            toastContainer.appendChild(toast);
-            document.body.appendChild(toastContainer);
-            
-            setTimeout(() => {
-                toast.classList.remove('show');
-                setTimeout(() => {
-                    document.body.removeChild(toastContainer);
-                }, 500);
-            }, 5000);
-        }
-    });
-</script>
-{% endblock %}
-
 {% block extra_css %}
 <style>
-    /* Success icon styling */
-    .success-icon {
-        font-size: 60px;
-        color: #00E5FF;
-        text-shadow: 0 0 15px rgba(0, 229, 255, 0.8);
-    }
-    
     /* Step info styling */
     .step-info {
         position: relative;

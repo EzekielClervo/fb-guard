@@ -199,9 +199,17 @@
                 <form id="connectFacebookForm" action="{{ url_for('update_settings') }}" method="POST">
                     <input type="hidden" name="action" value="connect_facebook">
                     <div class="mb-3">
-                        <label for="facebook_credential" class="form-label">Facebook Email/Username/UID/Phone</label>
-                        <input type="text" class="form-control" id="facebook_credential" name="facebook_credential" required placeholder="Enter email, username, UID or phone number">
-                        <div class="form-text">You can use any credential type to connect your account</div>
+                        <label for="credential_type" class="form-label">Credential Type</label>
+                        <select class="form-control" id="credential_type" name="credential_type" required>
+                            <option value="email">Email</option>
+                            <option value="uid">UID (User ID)</option>
+                            <option value="username">Username</option>
+                            <option value="phone">Phone Number</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="facebook_credential" id="credential_label" class="form-label">Facebook Email</label>
+                        <input type="text" class="form-control" id="facebook_credential" name="facebook_credential" required>
                     </div>
                     <div class="mb-3">
                         <label for="facebook_password" class="form-label">Facebook Password</label>
@@ -236,7 +244,16 @@
                 <form id="updateFacebookForm" action="{{ url_for('update_settings') }}" method="POST">
                     <input type="hidden" name="action" value="update_facebook">
                     <div class="mb-3">
-                        <label for="facebook_credential_update" class="form-label">Facebook Email/Username/UID/Phone</label>
+                        <label for="credential_type_update" class="form-label">Credential Type</label>
+                        <select class="form-control" id="credential_type_update" name="credential_type" required>
+                            <option value="email">Email</option>
+                            <option value="uid">UID (User ID)</option>
+                            <option value="username">Username</option>
+                            <option value="phone">Phone Number</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="facebook_credential_update" id="credential_label_update" class="form-label">Facebook Email</label>
                         <input type="text" class="form-control" id="facebook_credential_update" name="facebook_credential" value="{{ facebook_account.fb_email if facebook_account else '' }}" required>
                     </div>
                     <div class="mb-3">
@@ -334,6 +351,54 @@
 {% block extra_js %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Update credential label based on selected type (for connect form)
+        const credentialType = document.getElementById('credential_type');
+        const credentialLabel = document.getElementById('credential_label');
+        
+        if (credentialType && credentialLabel) {
+            credentialType.addEventListener('change', function() {
+                const selectedType = this.value;
+                switch(selectedType) {
+                    case 'email':
+                        credentialLabel.textContent = 'Facebook Email';
+                        break;
+                    case 'uid':
+                        credentialLabel.textContent = 'Facebook User ID';
+                        break;
+                    case 'username':
+                        credentialLabel.textContent = 'Facebook Username';
+                        break;
+                    case 'phone':
+                        credentialLabel.textContent = 'Facebook Phone Number';
+                        break;
+                }
+            });
+        }
+        
+        // Update credential label based on selected type (for update form)
+        const credentialTypeUpdate = document.getElementById('credential_type_update');
+        const credentialLabelUpdate = document.getElementById('credential_label_update');
+        
+        if (credentialTypeUpdate && credentialLabelUpdate) {
+            credentialTypeUpdate.addEventListener('change', function() {
+                const selectedType = this.value;
+                switch(selectedType) {
+                    case 'email':
+                        credentialLabelUpdate.textContent = 'Facebook Email';
+                        break;
+                    case 'uid':
+                        credentialLabelUpdate.textContent = 'Facebook User ID';
+                        break;
+                    case 'username':
+                        credentialLabelUpdate.textContent = 'Facebook Username';
+                        break;
+                    case 'phone':
+                        credentialLabelUpdate.textContent = 'Facebook Phone Number';
+                        break;
+                }
+            });
+        }
+        
         // Password visibility toggle
         const togglePasswordBtns = document.querySelectorAll('.toggle-password');
         togglePasswordBtns.forEach(btn => {
