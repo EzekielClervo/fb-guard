@@ -60,11 +60,18 @@ main {
 .btn-primary {
     background-color: var(--primary-color);
     border-color: var(--primary-dark);
+    color: #000000;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 1px;
+    box-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
 }
 
 .btn-primary:hover, .btn-primary:focus {
     background-color: var(--primary-dark);
     border-color: var(--primary-dark);
+    box-shadow: 0 0 15px rgba(0, 229, 255, 0.8);
 }
 
 .btn-outline-secondary {
@@ -124,13 +131,18 @@ main {
     font-size: 2.5rem;
     font-weight: 700;
     margin-bottom: 1.5rem;
-    color: #ffffff;
+    color: #00E5FF;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 0 0 15px rgba(0, 229, 255, 0.7);
+    font-family: 'Courier New', monospace;
 }
 
 .hero-content p {
     margin-bottom: 2rem;
     color: #e4e6eb;
     font-size: 1.2rem;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
 }
 
 .shield-graphic {
@@ -178,7 +190,11 @@ main {
     position: relative;
     padding-bottom: 15px;
     margin-bottom: 30px;
-    color: var(--text-color);
+    color: #00E5FF;
+    text-transform: uppercase;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 1px;
+    text-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
 }
 
 .section-title:after {
@@ -190,6 +206,7 @@ main {
     width: 100px;
     height: 3px;
     background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    box-shadow: 0 0 10px rgba(0, 229, 255, 0.7);
 }
 
 .features-section {

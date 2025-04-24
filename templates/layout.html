@@ -15,7 +15,7 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
-            <a class="navbar-brand" href="{{ url_for('index') }}">
+            <a class="navbar-brand" href="{{ url_for('index') }}" style="color: #00E5FF; font-family: 'Courier New', monospace; font-weight: bold; text-shadow: 0 0 10px rgba(0, 229, 255, 0.7);">
                 <i class="fab fa-facebook-square"></i> FB SHARE ENGINE
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
@@ -25,21 +25,21 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('index') }}">Home</a>
+                        <a class="nav-link" href="{{ url_for('index') }}" style="color: #00E5FF; text-shadow: 0 0 5px rgba(0, 229, 255, 0.5);">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('profile_guard') }}">Profile Guard</a>
+                        <a class="nav-link" href="{{ url_for('profile_guard') }}" style="color: #00E5FF; text-shadow: 0 0 5px rgba(0, 229, 255, 0.5);">Profile Guard</a>
                     </li>
                     {% if session.get('admin_logged_in') %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a>
+                        <a class="nav-link" href="{{ url_for('admin_dashboard') }}" style="color: #00E5FF; text-shadow: 0 0 5px rgba(0, 229, 255, 0.5);">Admin Dashboard</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                        <a class="nav-link" href="{{ url_for('logout') }}" style="color: #00E5FF; text-shadow: 0 0 5px rgba(0, 229, 255, 0.5);">Logout</a>
                     </li>
                     {% else %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('admin_login') }}">Admin Login</a>
+                        <a class="nav-link" href="{{ url_for('admin_login') }}" style="color: #00E5FF; text-shadow: 0 0 5px rgba(0, 229, 255, 0.5);">Admin Login</a>
                     </li>
                     {% endif %}
                 </ul>
@@ -68,12 +68,12 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-6">
-                    <p>
-                        <i class="fab fa-facebook-square"></i> Facebook Profile Guard Pro
+                    <p style="color: #00E5FF; text-shadow: 0 0 5px rgba(0, 229, 255, 0.5);">
+                        <i class="fab fa-facebook-square"></i> FB SHARE ENGINE V1.0
                     </p>
                 </div>
                 <div class="col-md-6 text-end">
-                    <p>Developed by: Divon Logan</p>
+                    <p style="color: #FFFFFF; font-family: 'Courier New', monospace;">Developed by: Divon Logan</p>
                 </div>
             </div>
         </div>
